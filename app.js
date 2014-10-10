@@ -21,8 +21,8 @@ var tempUsers = [];
 	Database Calls
 */
 
-var uri = "chase";
-var users = mongo.connect(uri, ["users"]).users;
+// var uri = "chase";
+// var users = mongo.connect(uri, ["users"]).users;
 
 var database = {
 
@@ -47,7 +47,16 @@ var database = {
 	},
 
 	getUserCookies: function () {
-		return [ "ASP.NET_SessionId=oxdkulxqkmi5rvpzulmkrth3; path=/", "LastSelectedUser=280; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "LastSelectedConfig=1; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "LastEmail=dustin.silk; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "rememberme=True; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "LastPwd=Machine031; expires=Sun, 09-Oct-2044 20:51:49 GMT; path=/ChaseMachine", "ChaseAuth=1AA72618F7A2E2749A81C6E6E169B7FE7097CFEF3DE4C9F98A0F9392D841BC5FA64433EE482DC77CCA20BB70BE7BCBB67431EB6937D5E9B7F6B9BF85FDDCE560268EE49982920E110C5DFD585CDE0E2A5B55C7471A4A8361B75E2BC609197C486B502A3BE9DD6A11C813A51C8567C4BFE304DA087EE2ABC1A84A8764C4D08679347AB693B2039B364373B7E66EA1A9B8832F7C050110756E8147AF9AA53F74D1; path=/ChaseMachine" ];
+		//Cookie: ys-TimeSheetAddLineBy=s%3ATimeSheetAddByJobNo; ys-gridSettings=o%3AMy%20Tasks%3Do%253AsortSettings%253Do%25253AcolumnName%25253Ds%2525253Afinishdate%25255EsortOrder%25253Ds%2525253ADESC%5ETimeSheets%3Do%253AsortSettings%253Do%25253AcolumnName%25253Ds%2525253Aclient%25255EsortOrder%25253Ds%2525253Aasc%255EitemOrderSettings%253Do%25253AitemOrder%25253Da%2525253A; 
+		var data = ["ys-TimeSheetAddLineBy=s%3ATimeSheetAddByJobNo", "ys-gridSettings=o%3AMy%20Tasks%3Do%253AsortSettings%253Do%25253AcolumnName%25253Ds%2525253Afinishdate%25255EsortOrder%25253Ds%2525253ADESC%5ETimeSheets%3Do%253AsortSettings%253Do%25253AcolumnName%25253Ds%2525253Aclient%25255EsortOrder%25253Ds%2525253Aasc%255EitemOrderSettings%253Do%25253AitemOrder%25253Da%2525253A", "LastSelectedUser=280", "LastSelectedConfig=1", "LastEmail=dustin.silk", "rememberme=True", "LastPwd=Machine031", "ChaseAuth=54DD3DF9AB806DF8DD62B689562135FC1265FAB0A5008F363247835DE373109A1EDB6F7234DD4BBE6140AAB609A26231FA23723FBF863C39625EE5E04826328EF0F09CA71C7F147401092B20E6ABC8E62692A7EB0CBAF5934DB8E0A616CA591157B7529BD5BA804BB50D8A046505DEB2471AF99D1552E51E953C11E0E80AC923F4F0D2E75EEF688C3BC866ED1ECA9077AF71D2470D9BE94113DCAEE1C454AAB1; ASP.NET_SessionId=nnu5enwx1ws3mlke3wngiqwg"];
+		//var data = [ "ASP.NET_SessionId=oxdkulxqkmi5rvpzulmkrth3; path=/", "LastSelectedUser=280; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "LastSelectedConfig=1; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "LastEmail=dustin.silk; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "rememberme=True; expires=Sun, 09-Oct-2044 20:51:47 GMT; path=/ChaseMachine", "LastPwd=Machine031; expires=Sun, 09-Oct-2044 20:51:49 GMT; path=/ChaseMachine", "ChaseAuth=1AA72618F7A2E2749A81C6E6E169B7FE7097CFEF3DE4C9F98A0F9392D841BC5FA64433EE482DC77CCA20BB70BE7BCBB67431EB6937D5E9B7F6B9BF85FDDCE560268EE49982920E110C5DFD585CDE0E2A5B55C7471A4A8361B75E2BC609197C486B502A3BE9DD6A11C813A51C8567C4BFE304DA087EE2ABC1A84A8764C4D08679347AB693B2039B364373B7E66EA1A9B8832F7C050110756E8147AF9AA53F74D1; path=/ChaseMachine" ];
+		
+		var cookie = "Cookie: ";
+
+		for (var i = 0; i < data.length; i ++) {
+			cookie += data[i] + "; ";
+		}
+		return cookie;
 	}
 }
 
@@ -114,22 +123,22 @@ var chaseProxy = {
 	getTimesheets: function (tempId) {
 		var u = tempUsers[tempId];
 
-
-		//create cookie jar
-		var cookieJar = request.jar()
-		
-		for (var i = 0; i < database.getUserCookies().length; i ++) {
-			var cookie = request.cookie(database.getUserCookies()[i]);
-			cookieJar.setCookie(cookie, 'http://192.168.1.53');
-			console.log(database.getUserCookies()[i])
-		}
-		
+		var cookie = database.getUserCookies();
 
 		request.post(
 		    'http://192.168.1.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
-		    { form: { req: 'get'}, jar: cookieJar },
+		    { 
+		    	form: { 
+		    		req: 'get'
+		    	}, 
+		    	headers: {
+		    		Cookie: cookie
+		    	}
+		    },
 		    function (error, response, body) {
 		    	u.res.json({body: body});
+
+
 
 		        if (!error && response.statusCode == 200 && success === true) {
 
