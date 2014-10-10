@@ -199,3 +199,31 @@ app.use('/timesheets', function(req, res) {
 */
 console.log("listening")
 app.listen(7501);
+
+
+
+
+
+
+
+
+
+/*
+
+Ive started diving into Nodejs. Now that my app is growing a bit large my code seems to be getting a little messy. On the front end it was fine because there wasnt all that many asynchronous events all waiting and depending on each other (Backbone and marionette helped a lot with that).
+
+So now that everything is event driven I'm unsure of how to pass data around effectively and cleanly when receiving multiple requests at once.
+
+So when I receive an Http request (with express) I do a little work and then make an asynchronous call to say, another server (using request). I could easily just have it run in the callback like so:
+
+    app.use('/get', function(req, res) {
+        request.post('http://url', data, function (error, response, body){
+            res.json({body: body});
+        });
+    });
+
+That is fine for something small as we can just wait for the second event to finish and then pass back the response to the original request response. But now if we had to add another asynchronous event to the mix to say, a database. Then we're in Callback Hell. 
+
+So to combat callback hell (on the front end) I'd make an object to hold all the functions and their callbacks then have a controller that calls the functions as they're needed. this would also work fine here as we can just pass the data we need through the functions. But as the data grows
+
+*/
