@@ -7,6 +7,6 @@
     "express": "4.x",
     "request": "*",
     "body-parser": "*",
-    "mongojs":	"*"
+    "mongodb":	"*"
   }
 }
