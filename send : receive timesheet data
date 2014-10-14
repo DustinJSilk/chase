@@ -1,0 +1,299 @@
+//sending
+
+{  
+   "timesheetitemid":80283,
+   "configid":"",
+   "company":"",
+   "customerid":22,
+   "client":"Just Money",
+   "productid":"",
+   "product":"",
+   "jobid":"",
+   "jobclosed":0,
+   "job":"",
+   "taskid":"",
+   "cancomplete":false,
+   "tasktypeid":110,
+   "notes":"",
+   "task":"Development",
+   "day1Time":"11:40",
+   "day2Time":"08:00",
+   "day3Time":"08:00",
+   "day4Time":"01:00",
+   "day5Time":"08:00",
+   "day6Time":"00:00",
+   "day7Time":"00:00",
+   "sumall":"36:40",
+   "exportdate0":"",
+   "exportdate1":"",
+   "exportdate2":"",
+   "exportdate3":"",
+   "exportdate4":"",
+   "exportdate5":"",
+   "exportdate6":"",
+   "status0":"",
+   "status1":"",
+   "status2":"",
+   "status3":"",
+   "status4":"",
+   "status5":"",
+   "status6":"",
+   "timesheetmaterialitems":0,
+   "showEditButton":true,
+   "canaddnotes":true,
+   "showDeleteButton":true,
+   "itemorder":1
+}
+
+
+//receiving
+
+{
+body: {
+success: true
+lineData: [4]
+0:  [38]
+0:  80052
+1:  1
+2:  "Machine Group (Pty) Ltd"
+3:  2436
+4:  "SAB (Pty) Ltd"
+5:  1720
+6:  "Miller "
+7:  5072
+8:  0
+9:  "5308 - Website Refresh"
+10:  ""
+11:  0
+12:  110
+13:  ""
+14:  "Development"
+15:  "01:00"
+16:  "00:00"
+17:  "00:00"
+18:  "00:00"
+19:  "00:00"
+20:  "00:00"
+21:  "00:00"
+22:  "01:00"
+23:  ""
+24:  ""
+25:  ""
+26:  ""
+27:  ""
+28:  ""
+29:  ""
+30:  ""
+31:  ""
+32:  ""
+33:  ""
+34:  ""
+35:  ""
+36:  ""
+37:  0
+-
+1:  [38]
+0:  80122
+1:  ""
+2:  ""
+3:  ""
+4:  ""
+5:  ""
+6:  ""
+7:  ""
+8:  0
+9:  ""
+10:  ""
+11:  0
+12:  21
+13:  "Stand up"
+14:  "Internal Meeting"
+15:  "00:20"
+16:  "00:00"
+17:  "00:00"
+18:  "00:00"
+19:  "00:00"
+20:  "00:00"
+21:  "00:00"
+22:  "00:20"
+23:  ""
+24:  ""
+25:  ""
+26:  ""
+27:  ""
+28:  ""
+29:  ""
+30:  ""
+31:  ""
+32:  ""
+33:  ""
+34:  ""
+35:  ""
+36:  ""
+37:  0
+-
+2:  [38]
+0:  80283
+1:  ""
+2:  ""
+3:  22
+4:  "Just Money"
+5:  ""
+6:  ""
+7:  ""
+8:  0
+9:  ""
+10:  ""
+11:  0
+12:  110
+13:  ""
+14:  "Development"
+15:  "11:40"
+16:  "08:00"
+17:  "08:00"
+18:  "01:00"
+19:  "00:00"
+20:  "00:00"
+21:  "00:00"
+22:  "28:40"
+23:  ""
+24:  ""
+25:  ""
+26:  ""
+27:  ""
+28:  ""
+29:  ""
+30:  ""
+31:  ""
+32:  ""
+33:  ""
+34:  ""
+35:  ""
+36:  ""
+37:  0
+-
+3:  [38]
+0:  80446
+1:  1
+2:  "Machine Group (Pty) Ltd"
+3:  32
+4:  "Real Futures (Pty) Ltd"
+5:  727
+6:  "Sanlam Reality"
+7:  6960
+8:  0
+9:  "6191 - New Website"
+10:  ""
+11:  0
+12:  112
+13:  ""
+14:  "UX"
+15:  "00:00"
+16:  "00:00"
+17:  "00:00"
+18:  "01:15"
+19:  "00:00"
+20:  "00:00"
+21:  "00:00"
+22:  "01:15"
+23:  ""
+24:  ""
+25:  ""
+26:  ""
+27:  ""
+28:  ""
+29:  ""
+30:  ""
+31:  ""
+32:  ""
+33:  ""
+34:  ""
+35:  ""
+36:  ""
+37:  0
+-
+-
+rights: {
+canView: false
+canEdit: false
+canCreate: false
+canDelete: false
+canReviewTimeSheetTimes: false
+requireTimeToComplete: false
+blockFutureDatedTimesheetEntries: false
+}-
+subFormRights: {
+ByTimeSheet: {
+canView: true
+canEdit: true
+}-
+ByTasks: {
+canView: true
+canEdit: true
+}-
+ByClient: {
+canView: true
+canEdit: true
+}-
+ByInternal: {
+canView: true
+canEdit: true
+}-
+ByJob: {
+canView: true
+canEdit: true
+}-
+}-
+weekends: [2]
+0:  "6"
+1:  "5"
+-
+userList: [1]
+0:  [2]
+0:  280
+1:  "{Me}"
+-
+-
+materialList: [2]
+0:  [14]
+0:  ""
+1:  ""
+2:  ""
+3:  ""
+4:  ""
+5:  ""
+6:  ""
+7:  0
+8:  ""
+9:  ""
+10:  ""
+11:  ""
+12:  ""
+13:  ""
+-
+1:  [14]
+0:  502
+1:  "Repro"
+2:  "Machine Group (Pty) Ltd"
+3:  "{Default Client}"
+4:  913
+5:  ""
+6:  ""
+7:  3
+8:  "Config"
+9:  ""
+10:  ""
+11:  500
+12:  ""
+13:  "zzzzzzzzzzz"
+-
+-
+timeSheetTypeID: ""
+allowMultipleTimeEntriesPerTask: false
+enableTSApprovals: false
+enableTimeSheetEditing: false
+enableSubordinateTimeSheetEditing: false
+zbar: [0]
+}-
+code: 200
+}
