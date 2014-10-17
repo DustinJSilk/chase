@@ -48,18 +48,16 @@ var login = function (user) {
 };
 
 var reLogin = function (user, callback) {
-	console.log(user.username, user.password)
 	request.post(
 	    'http://192.168.1.53/ChaseMachine/Login.aspx',
 	    { form: { req: 'auth',  cid: '1', em: user.username, pw: user.password, rm: true} },
 	    function (error, response, body) {
-	    	console.log(body)
 	    	var decoded = Ext.Ext.JSON.decode(body)
 
 	    	var success = decoded.success;
 
 	        if (!error && response.statusCode === 200 && success === true) {
-	        	console.log(response.headers)
+	        	console.log("Relogin Success")
 	        	user.cookies = response.headers['set-cookie'];
 
 	        	var next = getTimesheets;
@@ -90,12 +88,10 @@ var getTimesheets = function (user) {
 	    		req: 'get'
 	    	}, 
 	    	headers: {
-	    		Cookie: user.cookie
+	    		Cookie: user.cookies
 	    	}
 	    },
 	    function (error, response, body) {
-
-	    	console.log(body)
 
 	    	if (response.statusCode === 302) {
 	    		database.fetchAuth(user, reLogin);

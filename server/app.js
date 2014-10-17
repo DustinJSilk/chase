@@ -4,6 +4,7 @@ var Q = require('q');
 var bodyParser = require('body-parser');
 var chaseProxy = require('./chaseProxy.js');
 var database = require('./database.js');
+var clientResponser = require('./clientResponser.js');
 
 
 app.use(bodyParser.json());
@@ -26,6 +27,9 @@ app.use('/timesheets', function(req, res) {
 	user.id = req.body.id;
 
 	var promise = database.checkUnsavedTimesheets(user)
+	.fail(function (data) {
+		clientResponser.timeSheets(user);
+	})
 	.then(function (data) {
 		console.log("1")
 		return database.getUserCookies(data);
@@ -36,13 +40,12 @@ app.use('/timesheets', function(req, res) {
 	})
 	.then(function (data) {
 		console.log("3")
-		//return database.saveTimeSheets(data);
+		return database.saveTimeSheets(data);
 	})
 	.then(function (data) {
 		console.log("4")
-		return clientResponser.timeSheets(data);
+		clientResponser.timeSheets(data);
 	});
-
 });
 
 

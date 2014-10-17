@@ -20,11 +20,9 @@ var insertDetails = function (user, callback) {
 	} else {
 		users.find({'username': user.req.body.em}).toArray(function (err, data) {
 			if (data.length > 0) {
-				console.log("updating no id")
 				user.id = data[0]._id.toHexString();
 				updateUserCookies(user, callback);
 			} else {
-				console.log("creating no id")
 				createUser(user, callback);
 			}
 		});
@@ -34,8 +32,6 @@ var insertDetails = function (user, callback) {
 
 
 var updateUserCookies = function (user, callback) {
-	console.log("updating");
-	console.log(user.id)
 	var ObjectID = mongo.ObjectID;
 	var userId = ObjectID.createFromHexString(user.id);
 	
@@ -43,8 +39,6 @@ var updateUserCookies = function (user, callback) {
 		$set: {cookies: user.cookieJar}
 
 	}, function (err, results) {
-		console.log(err)
-		console.log(results)
 		callback(user);
 	});
 
@@ -110,8 +104,11 @@ var saveTimeSheets = function (user) {
 
 		var timeSheet = {
 			id: 				timeSheetId,
+			chaseId: 			user.rawTimeSheets[i][0],
 			customTitle: 		"",
 			isFavourite: 		false,
+			isHidden: 			false,
+			isAnonymous: 		false,
 			isTiming: 			false,
 			timingStamp: 		0,
 			unaddedTime:  		0,
@@ -138,9 +135,35 @@ var saveTimeSheets = function (user) {
 
 var checkUnsavedTimesheets = function (user) {
 	var deferred = Q.defer();
-	//do something asncy
-	//deferred.reject(err) || deferred.resolve(data)
-	deferred.resolve(user);
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id)
+
+	users.find({'_id': id}).toArray(function(err, data) {
+		user.unsaved = [];
+		user.hasUnsaved = false;
+		
+		var sheets = data[0].timeSheets;
+
+		var now = new Date();
+		var fullDaysSinceEpoch = Math.floor(now/8.64e7);
+
+		for (var i = 0; i < sheets.length; i ++) {
+			if ( (sheets[i].unaddedTime > 0 && unaddedTimeDate < fullDaysSinceEpoch) ||
+				 (sheets[i].isAnonymous === true && sheets[i].unaddedTime > 0) ) {
+				user.unsaved.push(sheets[i]);
+				user.hasUnsaved = true;
+			}
+		}
+
+		if (unsaved.length > 0) {
+			deferred.reject(user);
+		} else {
+			deferred.resolve(user);
+		}
+ 
+	});
+
 	return deferred.promise;
 }
 
