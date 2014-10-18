@@ -24,18 +24,28 @@ require.config({
     }
 });
 
-require([ "app"], function( App) {
+require([ "app", "views/login"], function(App, LoginView) {
 
     App.urlRoot = "http://dev.apollo:7501";
+    App.os = "mac";
+    // App.os = "windows";
+    // App.os = "ios";
+    // App.os = "android";
 
-    if (localStorage.userID !== null && localStorage.userID !== undefined) {
-        window.location.hash = "#index";
-        App.userID = localStorage.userID;
+    App.Framework7 = new Framework7();
+    App.$$ = Dom7;
+    App.mainView = App.Framework7.addView('.view-main');
+
+    if (localStorage.userID === null && localStorage.userID === undefined && localStorage.userID.length > 0) {
+        App.Framework7.loginScreen();
     } else {
-        window.location.hash = "#login";
+        App.userID = localStorage.userID;
+        window.location.hash = "#index";
     }
 
     App.start();
 
+    App.login.show(new LoginView());
+            
 });
 

@@ -7,54 +7,58 @@ mongo.connect("mongodb://localhost/chase", function (err, db) {
 	users = db.collection('users');	
 });
 
-var insertDetails = function (user, callback) {
+var insertDetails = function (user) {
+	var deferred = Q.defer();
+
 	var cookie = "";
 	for (var i = 0; i < user.cookies.length; i ++) {
 		cookie += user.cookies[i] + "; ";
 	}
-	user.cookieJar = cookie;
+	user.cookies = cookie;
 
 	if (user.id !== undefined && user.id !== null) {
-		updateUserCookies(user, callback);
+		updateUserCookies(user, deferred);
 
 	} else {
 		users.find({'username': user.req.body.em}).toArray(function (err, data) {
 			if (data.length > 0) {
 				user.id = data[0]._id.toHexString();
-				updateUserCookies(user, callback);
+				updateUserCookies(user, deferred);
 			} else {
-				createUser(user, callback);
+				createUser(user, deferred);
 			}
 		});
 	};
+
+	return deferred.promise;
 	
 };
 
 
-var updateUserCookies = function (user, callback) {
+var updateUserCookies = function (user, deferred) {
 	var ObjectID = mongo.ObjectID;
 	var userId = ObjectID.createFromHexString(user.id);
 	
 	users.update({ _id: userId }, {
-		$set: {cookies: user.cookieJar}
+		$set: {cookies: user.cookies}
 
 	}, function (err, results) {
-		callback(user);
+		deferred.resolve(user);
 	});
 
 };
 
 
-var createUser = function (user, callback) {
+var createUser = function (user, deferred) {
 	users.insert({
 		username: user.req.body.em,
 		password: user.req.body.pw,
-		cookies: user.cookieJar,
+		cookies: user.cookies,
 		timeSheets: []
 	
 	}, function (err, results){
 		user.id = results[0]._id;
-		callback(user);
+		deferred.resolve(user);
 	});
 };
 
@@ -74,18 +78,20 @@ var getUserCookies = function (user) {
 	return deferred.promise;
 };
 
-var fetchAuth = function (user, callback) {
-	
+var fetchAuth = function (user) {
+	var deferred = Q.defer();
+
 	var ObjectId = mongo.ObjectID;
 	var id = ObjectId.createFromHexString(user.id)
 
 	users.find({'_id': id}).toArray(function(err, data) {
 		user.username = data[0].username;
 		user.password = data[0].password;
-		callback(user);
+		deferred.resolve(user);
 
 	});
 
+	return deferred.promise;
 }
 
 var saveTimeSheets = function (user) {
@@ -94,7 +100,7 @@ var saveTimeSheets = function (user) {
 	var ObjectID = mongo.ObjectID;
 	var id = ObjectID.createFromHexString(user.id);
 
-	var timeSheets = [];
+	user.timeSheets = [];
 
 	var now = new Date();
 	var fullDaysSinceEpoch = Math.floor(now/8.64e7);
@@ -106,7 +112,7 @@ var saveTimeSheets = function (user) {
 			id: 				timeSheetId,
 			chaseId: 			user.rawTimeSheets[i][0],
 			customTitle: 		"",
-			isFavourite: 		false,
+			colour: 			null,
 			isHidden: 			false,
 			isAnonymous: 		false,
 			isTiming: 			false,
@@ -115,13 +121,13 @@ var saveTimeSheets = function (user) {
 			unaddedTimeDate: 	fullDaysSinceEpoch,
 			record: 			user.rawTimeSheets[i]
 		}
-		timeSheets.push(timeSheet);
+		user.timeSheets.push(timeSheet);
 	}
 	
 
 	users.update({ _id: id }, {
 		$set: {
-			timeSheets: timeSheets
+			timeSheets: user.timeSheets
 		}
 
 	}, function (err, results) {
@@ -140,7 +146,7 @@ var checkUnsavedTimesheets = function (user) {
 	var id = ObjectId.createFromHexString(user.id)
 
 	users.find({'_id': id}).toArray(function(err, data) {
-		user.unsaved = [];
+		user.timeSheets = [];
 		user.hasUnsaved = false;
 		
 		var sheets = data[0].timeSheets;
@@ -151,12 +157,12 @@ var checkUnsavedTimesheets = function (user) {
 		for (var i = 0; i < sheets.length; i ++) {
 			if ( (sheets[i].unaddedTime > 0 && unaddedTimeDate < fullDaysSinceEpoch) ||
 				 (sheets[i].isAnonymous === true && sheets[i].unaddedTime > 0) ) {
-				user.unsaved.push(sheets[i]);
+				user.timeSheets.push(sheets[i]);
 				user.hasUnsaved = true;
 			}
 		}
 
-		if (unsaved.length > 0) {
+		if (user.timeSheets.length > 0) {
 			deferred.reject(user);
 		} else {
 			deferred.resolve(user);
@@ -168,12 +174,43 @@ var checkUnsavedTimesheets = function (user) {
 }
 
 
+var colour = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
+				data[0].timeSheets[i].colour = user.colour;
+			}
+		}
+
+		users.update({ _id: id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+
 module.exports = {
-  createUser: createUser,
-  updateUserCookies: updateUserCookies,
-  getUserCookies: getUserCookies,
-  insertDetails: insertDetails,
-  fetchAuth: fetchAuth,
-  saveTimeSheets: saveTimeSheets,
-  checkUnsavedTimesheets: checkUnsavedTimesheets
+  createUser: 				createUser,
+  updateUserCookies: 		updateUserCookies,
+  getUserCookies: 			getUserCookies,
+  insertDetails: 			insertDetails,
+  fetchAuth: 				fetchAuth,
+  saveTimeSheets: 			saveTimeSheets,
+  checkUnsavedTimesheets: 	checkUnsavedTimesheets,
+  colour: 					colour
 }

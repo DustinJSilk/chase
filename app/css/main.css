@@ -1,0 +1,43 @@
+.select-blue {
+	background-color: #00b5ef;
+}
+
+.select-yellow {
+	background-color: #f0e936;
+}
+
+.select-red {
+	background-color: #ee3124;
+}
+
+
+
+.timesheet-item.red {
+	border-left: 5px solid #ee3124;
+}
+
+.timesheet-item.yellow {
+	border-left: 5px solid #f0e936;
+}
+
+.timesheet-item.blue {
+	border-left: 5px solid #00b5ef;
+}
+
+
+
+.timesheet-item .hide {
+	background-color: #000;
+}
+
+.timesheet-item.red .hide {
+	background-color: #ee3124;
+}
+
+.timesheet-item.yellow .hide {
+	background-color: #f0e936;
+}
+
+.timesheet-item.blue .hide {
+	background-color: #00b5ef;
+}

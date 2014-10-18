@@ -2,6 +2,8 @@ define(["app", "marionette", "text!templates/login.html"], function (App, Marion
 
 	var LoginView = Backbone.Marionette.ItemView.extend({
 
+		className: "view",
+
 		template: function(){
 			return _.template(LoginTemplate);
 		},
@@ -26,7 +28,9 @@ define(["app", "marionette", "text!templates/login.html"], function (App, Marion
 				success: function (data) {
 					App.userID = data.id;
 					localStorage.setItem("userID", data.id);
-					Backbone.history.navigate('/index', { trigger:true, replace: true })
+					Backbone.history.navigate('/', { trigger:true, replace: true });
+					Backbone.history.navigate('/index', { trigger:true, replace: true });
+					App.Framework7.closeModal("#login-screen")
 				},
 				error: function () {
 					console.log("error");

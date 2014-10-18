@@ -8,15 +8,55 @@
 	<meta name="description" content="Chase Software plugin app">
 	<meta name="author" content="Dustin J Silk - Publicis Machine">
 
-	<link rel="stylesheet" href="css/formalize.css">
 	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/framework7.min.css">
 	<link rel="stylesheet" href="css/main.css">
 
 	<script data-main="scripts/main" src="scripts/lib/require.js"></script>
+	<script src="scripts/lib/framework7.min.js"></script>
+
 
 </head>
 
 <body>
-	<div id="page"></div>
+	<div class="panel-overlay"></div>
+
+    <div class="panel panel-left panel-reveal">
+		left panel
+    </div>
+ 	
+ 	<div class="login-screen" id="login-screen"></div>
+
+	<div class="views">
+    	<div class="view view-main">
+
+			<div class="navbar">
+			    <div class="navbar-inner">
+			        <div class="left">
+			            <a data-panel="left" class="open-panel">Menu</a>
+			        </div>
+			        <div class="center">4H 30M</div>
+			        <div class="right">
+			            <a class="link">Add</a>
+			        </div>
+			    </div>
+			</div>
+
+			<div class="pages navbar-through toolbar-through">
+				<div data-page="test" class="page">
+					<div class="page-content">
+						<div>PAGE 2</div>
+					</div>
+				</div>
+				<div data-page="index" class="page">
+					<div class="page-content">
+						<div id="page"></div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
 </body>
 </html>

@@ -5,7 +5,8 @@ define(["marionette", "router"], function (Marionette, AppRouter) {
 
     // configuration, setting up regions, etc ...
     MyApp.addRegions({
-        page: "#page"
+        page: "#page",
+        login: "#login-screen"
     });
 
     MyApp.addInitializer(function (options) {

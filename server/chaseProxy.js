@@ -18,9 +18,11 @@ app.use(bodyParser.urlencoded({
 
 
 var login = function (user) {
+	var deferred = Q.defer();
+
 	request.post(
 	    'http://192.168.1.53/ChaseMachine/Login.aspx',
-	    { form: { req: 'auth',  cid: '1', em: user.req.body.em, pw: user.req.body.pw, rm: true} },
+	    { form: { req: 'auth',  cid: '1', em: user.username, pw: user.password, rm: true} },
 	    function (error, response, body) {
 
 	    	var decoded = Ext.Ext.JSON.decode(body)
@@ -30,8 +32,7 @@ var login = function (user) {
 	        if (!error && response.statusCode == 200 && success === true) {
 	        	user.cookies = response.headers['set-cookie'];
 
-	        	var responder = clientResponser.login;
-	            database.insertDetails(user, responder);
+	            deferred.resolve(user);
 
 	        //Handle errors
 	        } else if (!error && response.statusCode == 200 && success === false) {
@@ -45,37 +46,9 @@ var login = function (user) {
 	        }
 	    }
 	);
+
+	return deferred.promise;
 };
-
-var reLogin = function (user, callback) {
-	request.post(
-	    'http://192.168.1.53/ChaseMachine/Login.aspx',
-	    { form: { req: 'auth',  cid: '1', em: user.username, pw: user.password, rm: true} },
-	    function (error, response, body) {
-	    	var decoded = Ext.Ext.JSON.decode(body)
-
-	    	var success = decoded.success;
-
-	        if (!error && response.statusCode === 200 && success === true) {
-	        	console.log("Relogin Success")
-	        	user.cookies = response.headers['set-cookie'];
-
-	        	var next = getTimesheets;
-	            database.insertDetails(user, next);
-
-	        //Handle errors
-	        } else if (!error && response.statusCode == 200 && success === false) {
-	        	user.res.json({success: false, error: "Couldn't login with those details"});
-
-	        } else if (!error && !response.statusCode == 200) {
-	        	user.res.json({success: false, error: "Couldn't connect to Chase server"});
-
-			} else if (error) {
-	        	user.res.json({success: false, error: "An error 500"});
-	        }
-	    }
-	);
-}
 
 
 var getTimesheets = function (user) {
@@ -92,10 +65,9 @@ var getTimesheets = function (user) {
 	    	}
 	    },
 	    function (error, response, body) {
-
 	    	if (response.statusCode === 302) {
-	    		database.fetchAuth(user, reLogin);
-	    		//deferred.reject(302);
+	    		user.rejected = 302;
+	    		deferred.reject(user);
 	    	} else {
 		    	var decoded = Ext.Ext.JSON.decode(body);
 		    	user.rawTimeSheets = decoded.lineData;
@@ -124,6 +96,5 @@ var getTimesheets = function (user) {
 
 module.exports = {
   login: login,
-  reLogin: reLogin,
   getTimesheets: getTimesheets
 }

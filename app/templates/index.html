@@ -1,0 +1,35 @@
+<div class="list-block media-list">
+	<ul class="timesheets-list">
+
+
+		<% for (var i = 0; i < data.sheets.length; i ++) { %>
+			<li class="swipeout timesheet-item <%= data.sheets[i].get("colour") %>" data-id="<%= data.sheets[i].get("id") %>">
+				<div class="swipeout-content">
+					<div class="item-content">
+		                <div class="item-inner">
+		                    <div class="item-title-row">
+		                        <div class="item-title"><%= data.sheets[i].get("customTitle") %></div>
+		                        <div class="item-after">Element label</div>
+		                    </div>
+		                    <div class="item-subtitle"><%= data.sheets[i].get("subtitle") %></div>
+		                </div>
+		            </div>
+		        </div>
+
+
+				<div class="swipeout-actions-left">
+					<a class="select-blue" data-colour="blue" ></a>
+					<a class="select-yellow" data-colour="yellow" ></a>
+					<a class="select-red" data-colour="red" ></a>
+				</div>
+
+				<div class="swipeout-actions-right">
+					<a class="hide">Hide</a>
+				</div>
+
+			</li>
+		<% } %>
+
+
+	</ul>
+</div>
