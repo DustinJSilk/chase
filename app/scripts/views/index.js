@@ -32,6 +32,32 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			App.$$('.select-yellow').on('click', function () {
 				that.changeColour("yellow", this)
 			});
+
+
+			var ptrContent = App.$$('.pull-to-refresh-content');
+			ptrContent.on('refresh', function (e) {
+				that.refresh();
+			})
+		},
+
+		refresh: function () {
+			var that = this;
+
+			$.ajax({
+                url: App.urlRoot + "/timesheets",
+                type: "POST",
+                data: {id: App.userID},
+                success: function (data) {
+                    that.collection.reset(data.timeSheets.sheets);
+                    that.render();
+                    App.Framework7.pullToRefreshDone();
+                },
+                error: function (err, xhr, o) {
+                    if (err.status === 401) {
+                        App.Framework7.loginScreen();
+                    }
+                }
+            })
 		},
 
 		getTotalTime: function () {

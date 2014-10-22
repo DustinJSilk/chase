@@ -3,7 +3,8 @@ define(["marionette", "controller"], function (Marionette, Controller){
 	var AppRouter = Marionette.AppRouter.extend({
 		
 		appRoutes: {
-			"index": 					"index"
+			"index": 					"index",
+			"test": 					"test"
 		},
 
 		controller: Controller

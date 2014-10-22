@@ -1,6 +1,7 @@
 var mongo = require('mongodb');
 var Q = require('q');
 var clientResponser = require('./clientResponser.js');
+var functions = require('./functions.js');
 
 var users;
 mongo.connect("mongodb://localhost/chase", function (err, db) {
@@ -99,41 +100,28 @@ var saveTimeSheets = function (user) {
 
 	var ObjectID = mongo.ObjectID;
 	var id = ObjectID.createFromHexString(user.id);
-
-	user.timeSheets = [];
-
-	var now = new Date();
-	var fullDaysSinceEpoch = Math.floor(now/8.64e7);
-
-	for (var i = 0; i < user.rawTimeSheets.length; i ++) {
-		var timeSheetId = new ObjectID();
-
-		var timeSheet = {
-			id: 				timeSheetId,
-			chaseId: 			user.rawTimeSheets[i][0],
-			customTitle: 		"",
-			colour: 			null,
-			isHidden: 			false,
-			isAnonymous: 		false,
-			isTiming: 			false,
-			timingStamp: 		0,
-			unaddedTime:  		0,
-			unaddedTimeDate: 	fullDaysSinceEpoch,
-			record: 			user.rawTimeSheets[i]
-		}
-		user.timeSheets.push(timeSheet);
-	}
 	
 
-	users.update({ _id: id }, {
-		$set: {
-			timeSheets: user.timeSheets
-		}
+	users.find({'_id': id}).toArray(function(err, data) {
+		var stored = data[0].timeSheets;
 
-	}, function (err, results) {
-		deferred.resolve(user);
-	}, 
-	{ upsert: true });
+		//ON MONDAYS RUN SCHEDULED CRON JOB
+
+		user.timeSheets = functions.mergeTimesheets(stored, user.rawTimeSheets);
+		
+		
+
+		users.update({ _id: id }, {
+			$set: {
+				timeSheets: user.timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
 
 	return deferred.promise;
 
@@ -155,8 +143,7 @@ var checkUnsavedTimesheets = function (user) {
 		var fullDaysSinceEpoch = Math.floor(now/8.64e7);
 
 		for (var i = 0; i < sheets.length; i ++) {
-			if ( (sheets[i].unaddedTime > 0 && unaddedTimeDate < fullDaysSinceEpoch) ||
-				 (sheets[i].isAnonymous === true && sheets[i].unaddedTime > 0) ) {
+			if ( sheets[i].unaddedTime > 0 && unaddedTimeDate < fullDaysSinceEpoch) {
 				user.timeSheets.push(sheets[i]);
 				user.hasUnsaved = true;
 			}

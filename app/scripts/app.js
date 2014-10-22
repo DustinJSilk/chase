@@ -1,4 +1,4 @@
-define(["marionette", "router"], function (Marionette, AppRouter) {
+define(["marionette"], function (Marionette) {
 
     // set up the app instance
     var MyApp = new Marionette.Application();
@@ -7,11 +7,6 @@ define(["marionette", "router"], function (Marionette, AppRouter) {
     MyApp.addRegions({
         page: "#page",
         login: "#login-screen"
-    });
-
-    MyApp.addInitializer(function (options) {
-        MyApp.Router = new AppRouter();
-        Backbone.history.start();
     });
     
     // export the app from this module

@@ -1,4 +1,4 @@
-
+var functions = require('./functions.js');
 
 exports.login = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
@@ -18,35 +18,6 @@ exports.relogin = function (user) {
 
 exports.timeSheets = function (user) {
 
-	function getDaysRecord () {
-		var day = new Date().getDay();
-		var record;
-		switch (day) {
-			case 0:
-				record = user.timeSheets[i].record[21]
-				break;
-			case 1:
-				record = user.timeSheets[i].record[15]
-				break;
-			case 2:
-				record = user.timeSheets[i].record[16]
-				break;
-			case 3:
-				record = user.timeSheets[i].record[17]
-				break;
-			case 4:
-				record = user.timeSheets[i].record[18]
-				break;
-			case 5:
-				record = user.timeSheets[i].record[19]
-				break;
-			case 6:
-				record = user.timeSheets[i].record[21]
-				break;
-		}
-		return record;
-	}
-
 	var sheets = [];
 
 	for (var i = 0; i < user.timeSheets.length; i ++) {
@@ -59,9 +30,9 @@ exports.timeSheets = function (user) {
 			isAnonymous: 		user.timeSheets[i].isAnonymous,
 			isTiming: 			user.timeSheets[i].isTiming,
 			timingStamp: 		user.timeSheets[i].timingStamp,
-			unaddedTime:  		user.timeSheets[i].unaddedTime,
-			unaddedTimeDate: 	user.timeSheets[i].unaddedTimeDate,
-			record: 			getDaysRecord()
+			todaysTime:  		user.timeSheets[i].todaysTime,
+			todaysDay: 			user.timeSheets[i].todaysDay,
+			record: 			functions.getDaysRecord(user.timeSheets[i])
 		}
 
 		if (user.timeSheets[i].record[9].length < 1 && user.timeSheets[i].record[6].length < 1) {

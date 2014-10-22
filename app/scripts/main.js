@@ -24,7 +24,7 @@ require.config({
     }
 });
 
-require([ "app", "views/login"], function(App, LoginView) {
+require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
 
     App.urlRoot = "http://dev.apollo:7501";
     App.os = "mac";
@@ -32,7 +32,11 @@ require([ "app", "views/login"], function(App, LoginView) {
     // App.os = "ios";
     // App.os = "android";
 
-    App.Framework7 = new Framework7();
+    App.Framework7 = new Framework7({
+        dynamicNavbar: true,
+        domCache: true,
+        router: false
+    });
     App.$$ = Dom7;
     App.mainView = App.Framework7.addView('.view-main');
 
@@ -42,6 +46,11 @@ require([ "app", "views/login"], function(App, LoginView) {
         App.userID = localStorage.userID;
         window.location.hash = "#index";
     }
+
+    App.addInitializer(function (options) {
+        var Router = new AppRouter();
+        Backbone.history.start();
+    });
 
     App.start();
 
