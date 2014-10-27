@@ -4,7 +4,8 @@ define(["marionette", "controller"], function (Marionette, Controller){
 		
 		appRoutes: {
 			"index": 					"index",
-			"test": 					"test"
+			"test": 					"test",
+			"job/:id": 					"job"
 		},
 
 		controller: Controller

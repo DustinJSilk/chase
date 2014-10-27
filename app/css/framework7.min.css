@@ -1555,7 +1555,7 @@ html.retina.ios-gt-7 .content-block-inner {
 }
 .list-block .item-inner {
   padding-right: 15px;
-  border-bottom: 1px solid #c8c7cc;
+  /*border-bottom: 1px solid #c8c7cc;*/
   width: 100%;
   padding-top: 8px;
   padding-bottom: 7px;
@@ -1659,7 +1659,7 @@ html:not(.watch-active-state) .list-block .item-link:active .item-inner,
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   padding-left: 15px;
-  min-height: 44px;
+  min-height: 100px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: -webkit-flex;
@@ -1812,7 +1812,7 @@ html:not(.watch-active-state) .list-block .item-link:active .item-inner,
 .list-block li.media-item .item-link .item-title-row {
   padding-right: 20px;
   background: no-repeat right center;
-  background-image: url("data:image/svg+xml;charset=utf-8,<svg viewBox='0 0 60 120' xmlns='http://www.w3.org/2000/svg'><path d='m60 61.5-38.25 38.25-9.75-9.75 29.25-28.5-29.25-28.5 9.75-9.75z' fill='%23c7c7cc'/></svg>");
+  /*background-image: url("data:image/svg+xml;charset=utf-8,<svg viewBox='0 0 60 120' xmlns='http://www.w3.org/2000/svg'><path d='m60 61.5-38.25 38.25-9.75-9.75 29.25-28.5-29.25-28.5 9.75-9.75z' fill='%23c7c7cc'/></svg>");*/
   background-size: 10px 20px;
 }
 .list-block.media-list .item-media,

@@ -54,7 +54,8 @@ var createNewRecord = function (data) {
 		isAnonymous: 		false,
 		isTiming: 			false,
 		timingStamp: 		0,
-		todaysTime:  		0,
+		chaseTime:  		parseTime(getDaysRecord(data)), //Record from chase server
+		appTime:  			0, // extra time added through app
 		todaysDay: 			fullDaysSinceEpoch,
 		record: 			data
 	}
@@ -66,9 +67,13 @@ var mergeSingleSheet = function (old, raw) {
 
 	sheet.record = raw;
 
-	if (getDaysRecord(old.record) !== getDaysRecord(raw)) {
-		sheet.todaysTime = parseTime(getDaysRecord(raw));
-	}
+	// Get chaseTime and appTime. If the record on Chase today has changed - reset appTime.
+	// If it has not changed, then total time is chaseTime + appTime
+
+	if ( sheet.chaseTime !== getDaysRecord(raw) ) {
+		sheet.appTime = 0;
+		sheet.chaseTime = parseTime(getDaysRecord(raw));
+	} 
 
 	return sheet;
 }
@@ -101,6 +106,10 @@ var mergeTimesheets = function (old, raw) {
 	}
 
 	return newSheets;
+}
+
+var mondayMerge = function (old, raw) {
+	
 }
 
 

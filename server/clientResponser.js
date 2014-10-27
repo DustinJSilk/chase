@@ -22,7 +22,7 @@ exports.timeSheets = function (user) {
 
 	for (var i = 0; i < user.timeSheets.length; i ++) {
 		sheets[i] = {
-			id: 				user.timeSheets[i].id,
+			_id: 				user.timeSheets[i].id,
 			customTitle: 		user.timeSheets[i].customTitle,
 			jobSubtitle: 		"",
 			colour: 			user.timeSheets[i].colour,
@@ -30,7 +30,7 @@ exports.timeSheets = function (user) {
 			isAnonymous: 		user.timeSheets[i].isAnonymous,
 			isTiming: 			user.timeSheets[i].isTiming,
 			timingStamp: 		user.timeSheets[i].timingStamp,
-			todaysTime:  		user.timeSheets[i].todaysTime,
+			todaysTime:  		user.timeSheets[i].chaseTime + user.timeSheets[i].appTime,
 			todaysDay: 			user.timeSheets[i].todaysDay,
 			record: 			functions.getDaysRecord(user.timeSheets[i])
 		}

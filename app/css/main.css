@@ -41,3 +41,20 @@
 .timesheet-item.blue .hide {
 	background-color: #00b5ef;
 }
+
+
+.job-timer {
+	width: 100px;
+	height: 100px;
+	text-align: center;
+	vertical-align: middle;
+	padding-top: 40px;
+}
+
+.job-timer .time {
+	vertical-align: middle;
+}
+
+.timer-slider {
+	display: none;
+}

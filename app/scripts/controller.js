@@ -7,8 +7,8 @@ define(["app"], function (App) {
                     type: "POST",
                     data: {id: App.userID},
                     success: function (data) {
-                        var c = new TimesheetsCollection(data.timeSheets.sheets)
-                        App.page.show(new IndexView({collection: c}));
+                        App.Jobs = new TimesheetsCollection(data.timeSheets.sheets)
+                        App.page.show(new IndexView({collection: App.Jobs}));
                     },
                     error: function (err, xhr, o) {
                         if (err.status === 401) {
@@ -24,6 +24,13 @@ define(["app"], function (App) {
             App.mainView.router.load({
                 pageName: "test"
             })
+        },
+
+        job: function (id) {
+            require([ "app", "views/job"], function (App, JobView) {
+                var job = App.Jobs.get(id);
+                App.job.show(new JobView({model: job}));
+            });
         }
 
     }

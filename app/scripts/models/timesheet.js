@@ -2,8 +2,9 @@ define(["backbone"], function (Backbone) {
 
 	var TimesheetModel = Backbone.Model.extend({
 		
+		idAttribute: "_id",
+
 		defaults: {
-			id: 				null,
 			chaseId: 			null,
 			customTitle: 		"",
 			colour: 			null,
@@ -11,8 +12,8 @@ define(["backbone"], function (Backbone) {
 			isAnonymous: 		false,
 			isTiming: 			false,
 			timingStamp: 		0,
-			unaddedTime:  		0,
-			unaddedTimeDate: 	0,
+			todaysTime:  		0,
+			todaysDay: 			0,
 			record: 			[]
 		}
 	})

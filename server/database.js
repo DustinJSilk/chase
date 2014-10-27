@@ -109,7 +109,6 @@ var saveTimeSheets = function (user) {
 
 		user.timeSheets = functions.mergeTimesheets(stored, user.rawTimeSheets);
 		
-		
 
 		users.update({ _id: id }, {
 			$set: {
