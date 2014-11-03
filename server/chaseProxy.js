@@ -5,6 +5,7 @@ var Q = require('q');
 var bodyParser = require('body-parser');
 var clientResponser = require('./clientResponser.js');
 var database = require('./database.js');
+var functions = require('./functions.js');
 var Ext = require('./json.js');
 
 
@@ -24,7 +25,6 @@ var login = function (user) {
 	    'http://192.168.1.53/ChaseMachine/Login.aspx',
 	    { form: { req: 'auth',  cid: '1', em: user.username, pw: user.password, rm: true} },
 	    function (error, response, body) {
-
 	    	var decoded = Ext.Ext.JSON.decode(body)
 
 	    	var success = decoded.success;
@@ -94,7 +94,57 @@ var getTimesheets = function (user) {
 	return deferred.promise;
 }
 
+
+var saveAllTimesheets = function (user) {
+	var deferred = Q.defer();
+
+	var body = "req=settsgrid&modifiedRecords=" + functions.jsonToURI(user.updateSheets) + "&deletedLineIDs=%5B%5D";
+
+	request.post(
+	    'http://192.168.1.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
+	    {
+	    	body: body,
+	    	headers: {
+	    		Cookie: user.cookies,
+	    		'Content-Type': 'application/x-www-form-urlencoded'
+	    	}
+	    },
+	    function (error, response, body) {
+	    	console.log(body)
+	    	if (response.statusCode === 302) {
+	    		user.rejected = 302;
+	    		deferred.reject(user);
+	    	} else {
+		    	var decoded = Ext.Ext.JSON.decode(body);
+		    	console.log(decoded);
+
+		        if (!error && response.statusCode == 200 && decoded.success === true) {
+					deferred.resolve(user);
+
+		        } else if (!error && response.statusCode == 200 && decoded.success === false) {
+		        	user.res.json({success: false, error: "Failed to fetch timesheets. Chase said no!"});
+		        	deferred.reject("Failed to fetch timesheets. Chase said no!")
+
+		        } else if (!error && !response.statusCode == 200) {
+		        	user.res.json({success: false, error: "Couldn't connect to Chase server"});
+		        	deferred.reject("Couldn't connect to Chase server")
+
+				} else if (error) {
+		        	user.res.json({success: false, error: "An error 500"});
+		        	deferred.reject("An error 500")
+		        }
+		    }
+	    }
+	);
+
+	return deferred.promise;
+}
+
+
+
+
 module.exports = {
   login: login,
-  getTimesheets: getTimesheets
+  getTimesheets: getTimesheets,
+  saveAllTimesheets: saveAllTimesheets
 }

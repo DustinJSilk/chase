@@ -20,7 +20,6 @@ define(["app"], function (App) {
         },
 
         test: function () {
-            console.log("test route")
             App.mainView.router.load({
                 pageName: "test"
             })

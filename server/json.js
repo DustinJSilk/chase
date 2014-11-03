@@ -225,6 +225,7 @@ Ext.JSON = (new(function() {
      */
     me.encode = function(o) {
         if (!encodingFunction) {
+            console.log(isNative())
             // setup encoding function on first access
             encodingFunction = isNative() ? JSON.stringify : me.encodeValue;
         }

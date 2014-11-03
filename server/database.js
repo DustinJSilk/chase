@@ -65,7 +65,6 @@ var createUser = function (user, deferred) {
 
 
 var getUserCookies = function (user) {
-
 	var deferred = Q.defer();
 
 	var ObjectId = mongo.ObjectID;
@@ -174,7 +173,36 @@ var colour = function (user) {
 			}
 		}
 
-		users.update({ _id: id }, {
+		users.update({ '_id': id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+var updateSingleJob = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			if (data[0].timeSheets[i].id.valueOf() == user.job.id) {
+				data[0].timeSheets[i].appTime = parseInt(user.job.appTime) - parseInt(data[0].timeSheets[i].chaseTime);
+			}
+		}
+
+		users.update({ '_id': id }, {
 			$set: {
 				timeSheets: data[0].timeSheets
 			}
@@ -190,6 +218,40 @@ var colour = function (user) {
 }
 
 
+//Get and setup all timesheets for Chase update
+var getAllTimesheets = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		var sheets = [];
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			//if no change - skip
+			if ( data[0].timeSheets[i].appTime === 0 ) continue;
+
+			//Add appTime to the chase record
+			data[0].timeSheets[i] = functions.addAppTime(data[0].timeSheets[i]);
+
+			//Add to final save object
+			sheets.push(functions.setupUpdateObject(data[0].timeSheets[i]));
+		}
+
+		//final object
+		user.updateSheets = sheets;
+
+		deferred.resolve(user);
+
+	});
+
+
+	return deferred.promise;
+}
+
+
 module.exports = {
   createUser: 				createUser,
   updateUserCookies: 		updateUserCookies,
@@ -198,5 +260,7 @@ module.exports = {
   fetchAuth: 				fetchAuth,
   saveTimeSheets: 			saveTimeSheets,
   checkUnsavedTimesheets: 	checkUnsavedTimesheets,
-  colour: 					colour
+  colour: 					colour,
+  updateSingleJob: 			updateSingleJob,
+  getAllTimesheets: 		getAllTimesheets
 }

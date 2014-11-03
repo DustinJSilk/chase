@@ -1,4 +1,4 @@
-define(["backbone"], function (Backbone) {
+define(["app", "backbone"], function (App, Backbone) {
 
 	var TimesheetModel = Backbone.Model.extend({
 		
@@ -15,6 +15,36 @@ define(["backbone"], function (Backbone) {
 			todaysTime:  		0,
 			todaysDay: 			0,
 			record: 			[]
+		},
+
+		initialize: function () {
+			this.listenTo(this, 'change', this.updateTime);
+		},
+
+		updateTime: function () {
+			var that = this;
+
+		    clearTimeout($.data(that, 'modelTimer'));
+		    $.data(that, 'modelTimer', setTimeout(function() {
+		    	that.sendUpdate();
+		    }, 2000));
+
+		},
+
+		sendUpdate: function () {
+			var that = this;
+
+			$.ajax({
+				url: App.urlRoot + "/updatesingle",
+				type: "POST",
+                data: {id: App.userID, job: that.id, todaysTime: that.get("todaysTime")},
+                success: function (data) {
+                    console.log(data)
+                },
+                error: function (err, xhr, o) {
+                    console.log(err, xhr, o)
+                }
+			})
 		}
 	})
 

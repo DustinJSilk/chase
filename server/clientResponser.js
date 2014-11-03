@@ -30,7 +30,7 @@ exports.timeSheets = function (user) {
 			isAnonymous: 		user.timeSheets[i].isAnonymous,
 			isTiming: 			user.timeSheets[i].isTiming,
 			timingStamp: 		user.timeSheets[i].timingStamp,
-			todaysTime:  		user.timeSheets[i].chaseTime + user.timeSheets[i].appTime,
+			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime),
 			todaysDay: 			user.timeSheets[i].todaysDay,
 			record: 			functions.getDaysRecord(user.timeSheets[i])
 		}
@@ -55,5 +55,22 @@ exports.success = function (user) {
     user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.json({ success: true, colour: user.colour });
+}
+
+
+exports.updatedJob = function (user) {
+	user.res.header('Access-Control-Allow-Origin', '*');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Headers', 'Content-Type');
+    user.res.status(200)
+    user.res.json({ success: true, code: 200 });
+}
+
+exports.couldntUpdate = function (user) {
+	user.res.header('Access-Control-Allow-Origin', '*');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Headers', 'Content-Type');
+    user.res.status(503)
+    user.res.json({ success: false, code: 503, message: "Couldn't update todays time."  });
 }
 

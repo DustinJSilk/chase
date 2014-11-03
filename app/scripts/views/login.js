@@ -18,6 +18,8 @@ define(["app", "marionette", "text!templates/login.html"], function (App, Marion
 			var em = $("#em").val();
 			var pw = $("#pw").val();
 
+			$(".login a").addClass("loading");
+
 			$.ajax({
 				url: App.urlRoot + "/login",
 				type: "POST",
@@ -26,6 +28,8 @@ define(["app", "marionette", "text!templates/login.html"], function (App, Marion
 					pw: pw
 				},
 				success: function (data) {
+					$(".login a").removeClass("loading").find("span").eq(0).text("Success!");
+
 					App.userID = data.id;
 					localStorage.setItem("userID", data.id);
 					Backbone.history.navigate('/', { trigger:true, replace: true });
@@ -33,7 +37,10 @@ define(["app", "marionette", "text!templates/login.html"], function (App, Marion
 					App.Framework7.closeModal("#login-screen")
 				},
 				error: function () {
-					console.log("error");
+					$(".login a").removeClass("loading").find("span").eq(0).text("Oops! Something went wrong.");
+					setTimeout(function () {
+						$(".login a").find("span").eq(0).text("Login");
+					}, 2000)
 				}
 			});
 		}

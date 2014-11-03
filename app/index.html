@@ -23,7 +23,13 @@
 	<div class="panel-overlay"></div>
 
     <div class="panel panel-left panel-reveal">
-		left panel
+		<ul>
+			<li><a>Save all timesheets</a></li>
+			<li><a>Add new timesheet</a></li>
+			<li><a>Completed</a></li>
+			<li><a>Clear all unsaved time</a></li>
+			<li><a>Settings</a></li>
+		</ul>
     </div>
  	
  	<div class="login-screen" id="login-screen"></div>
@@ -34,13 +40,10 @@
 			<div class="navbar">
 				<!-- Home page navbar -->
 				<div class="navbar-inner" data-page="index">
-					<div class="left">
-			            <a data-panel="left" class="open-panel">Menu</a>
+					<div class="left hamburger">
+			            <a data-panel="left" class="open-panel"><img src="img/hamburger.jpg"/></a>
 			        </div>
-					<div class="center">4H 30M</div>
-					<div class="right">
-						<a class="link" href="#test" rel="external">Add</a>
-					</div>
+					<div class="center total-time"></div>
 				</div>
 
 				<!-- test page navbar -->

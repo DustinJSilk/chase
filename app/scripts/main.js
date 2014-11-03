@@ -32,6 +32,8 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     // App.os = "ios";
     // App.os = "android";
 
+    $('html').addClass(App.os)
+
     App.Framework7 = new Framework7({
         dynamicNavbar: true,
         domCache: true,
