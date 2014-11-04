@@ -9,10 +9,10 @@
 	<meta name="author" content="Dustin J Silk - Publicis Machine">
 
 	<link rel="stylesheet" href="css/normalize.css">
-	<link rel="stylesheet" href="css/framework7.min.css">
+	<link rel="stylesheet" href="css/framework7.css">
 	<link rel="stylesheet" href="css/main.css">
 	
-	<script src="scripts/lib/framework7.min.js"></script>
+	<script src="scripts/lib/framework7.js"></script>
 	<script data-main="scripts/main" src="scripts/lib/require.js"></script>
 	
 
@@ -36,34 +36,22 @@
 
 	<div class="views">
     	<div class="view view-main">
+			
+		
+			<div class="pages">
 
-			<div class="navbar">
-				<!-- Home page navbar -->
-				<div class="navbar-inner" data-page="index">
-					<div class="left hamburger">
-			            <a data-panel="left" class="open-panel"><img src="img/hamburger.jpg"/></a>
-			        </div>
-					<div class="center total-time"></div>
-				</div>
-
-				<!-- test page navbar -->
-				<div class="navbar-inner cached" data-page="test">
-					<div class="center">Test</div>
-				</div>
-			</div>
-
-			<div class="pages navbar-through">
-				<div data-page="test" class="page">
-					<div class="page-content">
-						<div>PAGE 2</div>
+				<div data-page="index" class="page navbar-fixed toolbar-fixed">
+					<div class="navbar">
+						<div class="navbar-inner" data-page="index">
+							<div class="left hamburger">
+					            <a data-panel="left" class="open-panel"><img src="img/hamburger.jpg"/></a>
+					        </div>
+							<div class="center total-time"></div>
+							<div class="right plus">
+					            <a href="#add-new" class="add-new"><img src="img/plus.jpg"/></a>
+					        </div>
+						</div>
 					</div>
-				</div>
-				<div data-page="job" class="page">
-					<div class="page-content">
-						<div id="job"></div>
-					</div>
-				</div>
-				<div data-page="index" class="page">
 					<div class="page-content pull-to-refresh-content">
 						<div class="pull-to-refresh-layer">
 							<div class="preloader"></div>
@@ -77,5 +65,24 @@
 
 		</div>
 	</div>
+
+
+	<div id="add-new-template" class="template">
+		<div data-page="add-new" class="add-new page navbar-fixed toolbar-fixed">
+			<div class="navbar">
+				<div class="navbar-inner" data-page="add-new">
+					<div class="left">
+			            <a class="go-back">Back</a>
+			        </div>
+					<div class="center">Test</div>
+				</div>
+			</div>
+			<div class="page-content">
+				<div id="add-new"></div>
+			</div>
+		</div>
+	</div>
+
+
 </body>
 </html>

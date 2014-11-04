@@ -7,7 +7,8 @@ define(["marionette"], function (Marionette) {
     MyApp.addRegions({
         page: "#page",
         login: "#login-screen",
-        job: "#job"
+        job: "#job",
+        addNew: "#add-new"
     });
     
     // export the app from this module

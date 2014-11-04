@@ -32,7 +32,7 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     // App.os = "ios";
     // App.os = "android";
 
-    $('html').addClass(App.os)
+    //$('html').addClass(App.os)
 
     App.Framework7 = new Framework7({
         dynamicNavbar: true,
@@ -43,6 +43,7 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     App.mainView = App.Framework7.addView('.view-main');
 
     if (localStorage.userID === null && localStorage.userID === undefined && localStorage.userID.length > 0) {
+        App.login.show(new LoginView());
         App.Framework7.loginScreen();
     } else {
         App.userID = localStorage.userID;
@@ -55,8 +56,6 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     });
 
     App.start();
-
-    App.login.show(new LoginView());
             
 });
 

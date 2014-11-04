@@ -191,6 +191,18 @@
 
 
 /* General */
+.template {
+	display: none;
+}
+
+.navbar, .toolbar {
+	height: 77px;
+}
+
+.navbar-through .page-content, .navbar-fixed .page-content {
+	padding-top: 77px;
+}
+
 .navbar-inner, .toolbar-inner {
 	height: 77px;
 	background-color: #000;
@@ -202,10 +214,24 @@
 		cursor: pointer;
 	}
 
-/*.windows .mobile,
+.navbar-inner .right.plus {
+	margin-left: 0px;
+	margin: 0;
+	height: 100%;
+}
+
+
+.navbar-inner .right.plus a {
+	height: 100%;
+	padding: 28px 12px 0;
+	cursor: pointer;
+}
+
+
+.windows .mobile,
 .mac .mobile {
 	display: none;
-}*/
+}
 
 .ios .desktop,
 .android .desktop {
@@ -285,7 +311,7 @@
 }
 
 .list-block {
-	margin: 33px 0;
+	margin: 0px 0;
 }
 
 

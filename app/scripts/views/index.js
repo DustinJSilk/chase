@@ -26,12 +26,6 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		onShow: function () {
 			var that = this;
 
-			//Pull to refresh
-			var ptrContent = App.$$('.pull-to-refresh-content');
-			ptrContent.on('refresh', function (e) {
-				that.refresh();
-			})
-
 			this.initEvents();
 
 			//that.unparseTime(data.sheets[i].get("todaysTime"));
@@ -49,7 +43,11 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			that.listenTo(that.collection, 'change', that.updateTimeVisual);
 
 			//Set total time
-			$(".total-time").text(this.getTotalTime().replace(":", "H ") + "M")
+			$(".total-time").text(this.getTotalTime().replace(":", "H ") + "M");
+
+			App.mainView.router.load({
+                pageName: "index"
+            })
 
 		},
 
@@ -60,10 +58,9 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
 			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
 
-			
+			//Swip out actions
 			var isSwipe = false;
 			var isOpen = false;
-
 			App.$$('.swipeout').on('open', function () {
 				isSwipe = true;
 				isOpen = true;
@@ -73,6 +70,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 				isOpen = false
 			});
 
+			//Open / close job options
 			$(".item-link").on(bindTypeEnd, function(e){
 				var el = $(this);
 				setTimeout(function () {
@@ -84,6 +82,16 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 					that.toggleJobOptions(el);
 				}, 30);
 			});
+
+			//Pull to refresh
+			var ptrContent = App.$$('.pull-to-refresh-content');
+			ptrContent.on('refresh', function (e) {
+				that.refresh();
+			})
+
+			// $("a.add-new").on(bindTypeEnd, function () {
+			// 	Backbone.history.navigate("#/add-job", {trigger: true, replace: true});
+			// });
 
 			// //Stop linking through if trying to change the time.
 			// $(".item-link").click(function(e){
@@ -107,11 +115,13 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
                     that.render();
                     App.Framework7.pullToRefreshDone();
                     $(".total-time").text(that.getTotalTime().replace(":", "H ") + "M");
-                    this.initEvents();
+                    that.initEvents();
                 },
                 error: function (err, xhr, o) {
                     if (err.status === 401) {
                         App.Framework7.loginScreen();
+                    } else {
+                    	App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
                     }
                 }
             });

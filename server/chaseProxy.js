@@ -65,9 +65,14 @@ var getTimesheets = function (user) {
 	    	}
 	    },
 	    function (error, response, body) {
-	    	if (response.statusCode === 302) {
+	    	if (!response) {
+	    		user.rejected = 503;
+	    		deferred.reject(user);
+
+	    	} else if (response.statusCode === 302) {
 	    		user.rejected = 302;
 	    		deferred.reject(user);
+
 	    	} else {
 		    	var decoded = Ext.Ext.JSON.decode(body);
 		    	user.rawTimeSheets = decoded.lineData;
