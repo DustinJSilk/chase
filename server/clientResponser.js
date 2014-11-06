@@ -31,7 +31,6 @@ exports.timeSheets = function (user) {
 			isTiming: 			user.timeSheets[i].isTiming,
 			timingStamp: 		user.timeSheets[i].timingStamp,
 			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime),
-			todaysDay: 			user.timeSheets[i].todaysDay,
 			record: 			functions.getDaysRecord(user.timeSheets[i])
 		}
 
@@ -42,12 +41,13 @@ exports.timeSheets = function (user) {
 			sheets[i].customTitle = user.timeSheets[i].record[9];
 			sheets[i].subtitle = user.timeSheets[i].record[9].split(" - ")[0] + " - " + user.timeSheets[i].record[6] + " - " + user.timeSheets[i].record[9].split(" - ")[1];
 		}
+
 	}
 
 	user.res.header('Access-Control-Allow-Origin', '*');
     user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
-    user.res.json({ success: true, timeSheets: {unsaved: user.hasUnsaved, sheets: sheets} });
+    user.res.json({ success: true, timeSheets: {unsaved: user.hasUnsaved, sheets: sheets, day: user.day} });
 }
 
 exports.success = function (user) {
@@ -72,5 +72,12 @@ exports.couldntUpdate = function (user) {
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.status(503)
     user.res.json({ success: false, code: 503, message: "Couldn't update todays time."  });
+}
+
+exports.updatedAll = function (user) {
+	user.res.header('Access-Control-Allow-Origin', '*');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Headers', 'Content-Type');
+    user.res.json({ success: true });
 }
 

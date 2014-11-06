@@ -22,7 +22,7 @@ var login = function (user) {
 	var deferred = Q.defer();
 
 	request.post(
-	    'http://192.168.1.53/ChaseMachine/Login.aspx',
+	    'http://192.168.15.53/ChaseMachine/Login.aspx',
 	    { form: { req: 'auth',  cid: '1', em: user.username, pw: user.password, rm: true} },
 	    function (error, response, body) {
 	    	var decoded = Ext.Ext.JSON.decode(body)
@@ -55,7 +55,7 @@ var getTimesheets = function (user) {
 	var deferred = Q.defer();
 
 	request.post(
-	    'http://192.168.1.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
+	    'http://192.168.15.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
 	    { 
 	    	form: { 
 	    		req: 'get'
@@ -104,9 +104,10 @@ var saveAllTimesheets = function (user) {
 	var deferred = Q.defer();
 
 	var body = "req=settsgrid&modifiedRecords=" + functions.jsonToURI(user.updateSheets) + "&deletedLineIDs=%5B%5D";
-
+	console.log(body);
+	return;
 	request.post(
-	    'http://192.168.1.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
+	    'http://192.168.15.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
 	    {
 	    	body: body,
 	    	headers: {
@@ -115,7 +116,7 @@ var saveAllTimesheets = function (user) {
 	    	}
 	    },
 	    function (error, response, body) {
-	    	console.log(body)
+	    	console.log(response)
 	    	if (response.statusCode === 302) {
 	    		user.rejected = 302;
 	    		deferred.reject(user);

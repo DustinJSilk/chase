@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var chaseProxy = require('./chaseProxy.js');
 var database = require('./database.js');
 var clientResponser = require('./clientResponser.js');
+var functions = require('./functions.js');
 
 
 app.use(bodyParser.json());
@@ -43,13 +44,7 @@ app.use('/timesheets', function(req, res) {
 		return;
 	}
 
-	var promise = database.checkUnsavedTimesheets(user)
-		.fail(function (data) {
-			clientResponser.timeSheets(data);
-		})
-	.then(function (data) {
-		return database.getUserCookies(data);
-	})
+	var promise = database.getUserCookies(user)
 	.then(function (data) {
 		return chaseProxy.getTimesheets(data);
 	})
@@ -77,7 +72,12 @@ app.use('/timesheets', function(req, res) {
 		return database.saveTimeSheets(data);
 	})
 	.then(function (data) {
-		clientResponser.timeSheets(data);
+		// Check if any timesheets hav unsaved time.
+		// Return time based on that day
+		var user = functions.checkUnsavedTimesheets(data);
+
+		// Return timesheets
+		clientResponser.timeSheets(user);
 	});
 });
 
@@ -155,23 +155,12 @@ app.use('/saveall', function(req, res) {
 					.then(function (data){
 	            		return database.insertDetails(user);
 					})
-					// .then(function (data){
-					// 	return chaseProxy.getTimesheets(data)
-					// })
-					// .then(function (data){
-					// 	return database.saveTimeSheets(data);
-					// })
-					// .then(function (data) {
-					// 	clientResponser.timeSheets(data);
-					// });
 			}
 		})
-	// .fail(function (data) {
-	// 	clientResponser.failSaveAll(data);
-	// })
-	// .then(function (data) {
-	// 	return clientResponser.success(data);
-	// });
+	.then(function (data) {
+		console.log("saved all - respond")
+		return clientResponser.updatedAll(data);
+	});
 
 
 });

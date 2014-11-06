@@ -24,7 +24,7 @@
 
     <div class="panel panel-left panel-reveal">
 		<ul>
-			<li><a>Save all timesheets</a></li>
+			<li><a href="#save-all">Save all timesheets</a></li>
 			<li><a>Add new timesheet</a></li>
 			<li><a>Completed</a></li>
 			<li><a>Clear all unsaved time</a></li>
@@ -65,7 +65,21 @@
 
 		</div>
 	</div>
-
+	
+	<div class="unsaved">
+		<div class="navbar">
+			<div class="navbar-inner" data-page="index">
+				<div class="left cancel">
+		            <a></a>
+		        </div>
+				<div class="center total-time"></div>
+				<div class="right finish">
+		            <a></a>
+		        </div>
+			</div>
+		</div>
+		<div id="unsaved"></div>
+	</div>
 
 	<div id="add-new-template" class="template">
 		<div data-page="add-new" class="add-new page navbar-fixed toolbar-fixed">

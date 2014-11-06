@@ -1,7 +1,12 @@
 var mongo = require('mongodb');
 
-var getDaysRecord = function (sheet) {
-	var day = new Date().getDay();
+
+//Returns the chase record for the given day (timestamp)
+//Defaults to today
+var getDaysRecord = function (sheet, timestamp) {
+	var timestamp = timestamp || new Date().getTime();
+	day = new Date(timestamp).getDay();
+
 	var record;
 	switch (day) {
 		case 0:
@@ -64,7 +69,7 @@ var createNewRecord = function (data) {
 	var ObjectID = mongo.ObjectID;
 	var timeSheetId = new ObjectID();
 
-	var timestamp = new Date().getTime();;
+	var timestamp = new Date().getTime();
 
 	var timeSheet = {
 		id: 				timeSheetId,
@@ -77,7 +82,7 @@ var createNewRecord = function (data) {
 		timingStamp: 		0,
 		chaseTime:  		parseTime(getDaysRecord(data)), //Record from chase server
 		appTime:  			0, // extra time added through app
-		todaysDay: 			timestamp,
+		addedOnDay: 		timestamp,
 		record: 			data
 	}
 	return timeSheet;
@@ -90,11 +95,14 @@ var mergeSingleSheet = function (old, raw) {
 
 	// Get chaseTime and appTime. If the record on Chase today has changed - reset appTime.
 	// If it has not changed, then total time is chaseTime + appTime
+	// Make sure to compare the chase time of the day equal to the record timestamp
 
-	if ( sheet.chaseTime !== parseTime(getDaysRecord(raw)) ) {
+	//If it has changed - overwrite
+	if ( sheet.chaseTime !== parseTime(getDaysRecord(raw, sheet.addedOnDay)) ) {
 		sheet.appTime = 0;
-		sheet.chaseTime = parseTime(getDaysRecord(raw));
-	} 
+		sheet.addedOnDay = new Date().getTime();
+		sheet.chaseTime = parseTime(getDaysRecord(raw, sheet.addedOnDay));
+	}
 
 	return sheet;
 }
@@ -104,7 +112,8 @@ var mergeTimesheets = function (old, raw) {
 	var ObjectID = mongo.ObjectID;
 	var newSheets = [];
 
-	//iterate through old and new and merge
+	// Iterate through old and new and merge
+	// New first, old inside
 	for (var n = 0; n < raw.length; n ++) {
 		var chaseId = raw[n][0];
 		var index = -1;
@@ -126,13 +135,46 @@ var mergeTimesheets = function (old, raw) {
 		}
 	}
 
+	// Now add any anonymous timesheets
+	// No need to add unsaved sheets - they get saved to Chase on creation
+
 	return newSheets;
+}
+
+var checkUnsavedTimesheets = function (user) {
+	user.hasUnsaved = false;
+	user.unsavedDate = null;
+
+	var sheets = user.timeSheets;
+
+	var today = new Date().getDate();
+
+	//iterate through timesheets
+	for (var i = 0; i < sheets.length; i ++) {
+		var day = new Date(sheets[i].addedOnDay).getDate();
+		if ( sheets[i].appTime > 0 && day !== today) {
+			user.hasUnsaved = true;
+			user.unsavedDate = sheets[i].addedOnDay;
+		}
+	}
+	
+	// Return user if no unsaved time
+	if (user.hasUnsaved === false) return user;
+
+	// Iterate through sheets and set ChaseTime to the day that is unsaved
+	for (var i = 0; i < sheets.length; i ++) {
+		sheets[i].chaseTime = parseTime(getDaysRecord(sheets[i].record, user.unsavedDate));
+	}
+
+	user.timeSheets = sheets;
+
+	return user;
 }
 
 var addAppTime = function (sheet) {
 
 	//Get day of week
-	var day = new Date(sheet.todaysDay).getDay();
+	var day = new Date(sheet.addedOnDay).getDay();
 
 	//Add times together and format 00:00
 	var updatedTime = unparseTime(parseInt(sheet.appTime) + parseInt(sheet.chaseTime));
@@ -233,13 +275,14 @@ var jsonToURI = function (json) {
 
 
 module.exports = {
-	getDaysRecord: 		getDaysRecord,
-	mergeTimesheets: 	mergeTimesheets,
-	createNewRecord: 	createNewRecord,
-	mergeSingleSheet: 	mergeSingleSheet,
-	setupUpdateObject: 	setupUpdateObject,
-	addAppTime: 		addAppTime,
-	jsonToURI: 			jsonToURI
+	getDaysRecord: 			getDaysRecord,
+	mergeTimesheets: 		mergeTimesheets,
+	createNewRecord: 		createNewRecord,
+	mergeSingleSheet: 		mergeSingleSheet,
+	setupUpdateObject: 		setupUpdateObject,
+	addAppTime: 			addAppTime,
+	jsonToURI: 				jsonToURI,
+	checkUnsavedTimesheets: checkUnsavedTimesheets
 }
 
 

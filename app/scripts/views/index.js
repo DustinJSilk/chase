@@ -11,7 +11,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 
 		serializeData: function () {
 			var data = {
-				sheets: this.collection.models
+				sheets: this.collection.models,
+				unsaved: (this.options.unsaved === true) ? "unsaved" : ""
 			}
 			for ( var i = 0; i < data.sheets.length; i ++ ) {
 				data.sheets[i].todaysTime = this.unparseTime(data.sheets[i].get("todaysTime"));
@@ -25,8 +26,6 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 
 		onShow: function () {
 			var that = this;
-
-			this.initEvents();
 
 			//that.unparseTime(data.sheets[i].get("todaysTime"));
 
@@ -47,7 +46,18 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 
 			App.mainView.router.load({
                 pageName: "index"
-            })
+            });
+
+
+			//If showing unsaved items
+            if ( this.options.unsaved ) {
+            	$(".unsaved").css({"top": 0})
+                setTimeout(function () {
+                    App.Framework7.alert("Make sure yesterdays timesheets are all good before you save them to Chase." , 'Unsaved Timesheets!');
+                }, 600)
+            }
+
+            this.initEvents();
 
 		},
 
@@ -99,6 +109,18 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			// 		e.preventDefault();
 			// 	}
 			// });
+
+
+			//If showing unsaved items
+            if ( this.options.unsaved ) {
+            	$(".unsaved .finish ").on(bindTypeEnd, function () {
+            		Backbone.history.navigate("#save-all", {trigger: true, replace: true});
+            	})
+            	$(".unsaved .cancel a").on(bindTypeEnd, function () {
+            		App.Framework7.alert("Any unsaved time will return to what is currently saved on Chase." , 'Are you sure?');
+            		Backbone.history.navigate("#purge-all", {trigger: true, replace: true});
+            	})
+            }
 
 		},
 

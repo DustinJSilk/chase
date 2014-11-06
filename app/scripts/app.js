@@ -8,7 +8,8 @@ define(["marionette"], function (Marionette) {
         page: "#page",
         login: "#login-screen",
         job: "#job",
-        addNew: "#add-new"
+        addNew: "#add-new",
+        unsaved: "#unsaved"
     });
     
     // export the app from this module

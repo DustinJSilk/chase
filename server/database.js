@@ -134,18 +134,20 @@ var checkUnsavedTimesheets = function (user) {
 	users.find({'_id': id}).toArray(function(err, data) {
 		user.timeSheets = [];
 		user.hasUnsaved = false;
-		
+
 		var sheets = data[0].timeSheets;
 
 		var now = new Date();
-		var fullDaysSinceEpoch = Math.floor(now/8.64e7);
+		var today = new Date().getDate();
 
 		for (var i = 0; i < sheets.length; i ++) {
-			if ( sheets[i].unaddedTime > 0 && unaddedTimeDate < fullDaysSinceEpoch) {
+			var day = new Date(sheets[i].addedOnDay).getDate();
+			if ( sheets[i].appTime > 0 && day !== today) {
 				user.timeSheets.push(sheets[i]);
 				user.hasUnsaved = true;
 			}
 		}
+
 
 		if (user.timeSheets.length > 0) {
 			deferred.reject(user);

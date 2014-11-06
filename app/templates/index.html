@@ -1,5 +1,5 @@
 <div class="list-block media-list">
-	<ul class="timesheets-list">
+	<ul class="timesheets-list <%= data.unsaved %>">
 
 
 		<% for (var i = 0; i < data.sheets.length; i ++) { %>
@@ -37,8 +37,8 @@
 					</div>  
 				</form>
 				<div class="mobile job-links">
-					<a class="favourite">Favourite</a>
-					<a>Start Timing</a>
+					<a class="favourite hide-for-unsaved">Favourite</a>
+					<a class="hide-for-unsaved">Start Timing</a>
 					<a>Edit</a>
 				</div> 
 			</li>

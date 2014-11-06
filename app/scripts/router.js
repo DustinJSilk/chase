@@ -5,7 +5,9 @@ define(["marionette", "controller"], function (Marionette, Controller){
 		appRoutes: {
 			"index": 					"index",
 			"job/:id": 					"job",
-			"add-new": 				"addNew"
+			"add-new": 					"addNew",
+			"save-all": 				"saveAll",
+			"unsaved": 					"unsaved"
 		},
 
 		controller: Controller
