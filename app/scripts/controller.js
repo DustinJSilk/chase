@@ -1,7 +1,7 @@
 define(["app"], function (App) {
     var controller = {
         index: function () {
-            require([ "app", "views/index", "collections/timesheets" ], function (App, IndexView, TimesheetsCollection) {
+            require([ "app", "views/index", "collections/timesheets", "views/login" ], function (App, IndexView, TimesheetsCollection, LoginView) {
                 $.ajax({
                     url: App.urlRoot + "/timesheets",
                     type: "POST",
@@ -18,6 +18,7 @@ define(["app"], function (App) {
                     },
                     error: function (err, xhr, o) {
                         if (err.status === 401) {
+                            App.login.show(new LoginView());
                             App.Framework7.loginScreen();
                         } else {
                             App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
@@ -42,24 +43,48 @@ define(["app"], function (App) {
         },
 
         saveAll: function () {
-            $.ajax({
-                url: App.urlRoot + "/saveall",
-                type: "POST",
-                data: {id: App.userID},
-                success: function (data) {
-                    Backbone.history.navigate("#index", {trigger: true, replace: true});
-                    $(".unsaved").css({"top": "100%"});
-                    setTimeout(function () {
-                        $(".unsaved #unsaved").html("")
-                    }, 800)
-                },
-                error: function (err, xhr, o) {
-                    if (err.status === 401) {
-                        App.Framework7.loginScreen();
-                    } else {
-                        App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
+            require([ "app", "views/login" ], function (App, LoginView) {
+                $.ajax({
+                    url: App.urlRoot + "/saveall",
+                    type: "POST",
+                    data: {id: App.userID},
+                    success: function (data) {
+                        Backbone.history.navigate("#index", {trigger: true, replace: true});
+                        $(".unsaved").css({"top": "100%"});
+                        setTimeout(function () {
+                            $(".unsaved #unsaved").html("")
+                        }, 800)
+                    },
+                    error: function (err, xhr, o) {
+                        if (err.status === 401) {
+                            App.login.show(new LoginView());
+                            App.Framework7.loginScreen();
+                        } else {
+                            App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
+                        }
                     }
-                }
+                })
+            })
+        },
+
+        purgeAll: function () {
+            require([ "app", "views/login" ], function (App, LoginView) {
+                $.ajax({
+                    url: App.urlRoot + "/purgeall",
+                    type: "POST",
+                    data: {id: App.userID},
+                    success: function (data) {
+                        Backbone.history.navigate("#index", {trigger: true, replace: true});
+                    },
+                    error: function (err, xhr, o) {
+                        if (err.status === 401) {
+                            App.login.show(new LoginView());
+                            App.Framework7.loginScreen();
+                        } else {
+                            App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
+                        }
+                    }
+                })
             })
         },
 

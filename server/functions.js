@@ -3,10 +3,7 @@ var mongo = require('mongodb');
 
 //Returns the chase record for the given day (timestamp)
 //Defaults to today
-var getDaysRecord = function (sheet, timestamp) {
-	var timestamp = timestamp || new Date().getTime();
-	day = new Date(timestamp).getDay();
-
+var getDaysRecord = function (sheet, day) {
 	var record;
 	switch (day) {
 		case 0:
@@ -34,7 +31,7 @@ var getDaysRecord = function (sheet, timestamp) {
 	return record;
 }
 
-// 00:00 -> 00 minutes
+// 00:00 -> Minutes
 var parseTime = function (time) {
 	
 	var hours = parseInt(time.split(":")[0] * 60);
@@ -65,7 +62,7 @@ var unparseTime = function (time) {
 }
 
 
-var createNewRecord = function (data) {
+var createNewRecord = function (data, currentDay) {
 	var ObjectID = mongo.ObjectID;
 	var timeSheetId = new ObjectID();
 
@@ -80,15 +77,15 @@ var createNewRecord = function (data) {
 		isAnonymous: 		false,
 		isTiming: 			false,
 		timingStamp: 		0,
-		chaseTime:  		parseTime(getDaysRecord(data)), //Record from chase server
+		chaseTime:  		parseTime(getDaysRecord(data, currentDay)), //Record from chase server. Used to check if chase data ever changes
 		appTime:  			0, // extra time added through app
-		addedOnDay: 		timestamp,
+		//addedOnDay: 		timestamp,
 		record: 			data
 	}
 	return timeSheet;
 }
 
-var mergeSingleSheet = function (old, raw) {
+var mergeSingleSheet = function (old, raw, currentDay) {
 	var sheet = old;
 
 	sheet.record = raw;
@@ -98,19 +95,23 @@ var mergeSingleSheet = function (old, raw) {
 	// Make sure to compare the chase time of the day equal to the record timestamp
 
 	//If it has changed - overwrite
-	if ( sheet.chaseTime !== parseTime(getDaysRecord(raw, sheet.addedOnDay)) ) {
+	if ( sheet.chaseTime !== parseTime(getDaysRecord(raw, currentDay)) ) {
 		sheet.appTime = 0;
 		sheet.addedOnDay = new Date().getTime();
-		sheet.chaseTime = parseTime(getDaysRecord(raw, sheet.addedOnDay));
+		sheet.chaseTime = parseTime(getDaysRecord(raw, currentDay));
 	}
 
 	return sheet;
 }
 
 
-var mergeTimesheets = function (old, raw) {
+var mergeTimesheets = function (user, raw) {
 	var ObjectID = mongo.ObjectID;
-	var newSheets = [];
+	user.timeSheets = [];
+	user.currentDay = user.stored.currentDay;
+	user.currentDate = user.stored.currentDate;
+
+	var old = user.stored.timeSheets;
 
 	// Iterate through old and new and merge
 	// New first, old inside
@@ -128,56 +129,61 @@ var mergeTimesheets = function (old, raw) {
 
 		if (index !== -1) {
 			//CHASE ALWAYS WINS - Merge
-			newSheets.push(mergeSingleSheet(old[index], raw[n]));
+			user.timeSheets.push(mergeSingleSheet(old[index], raw[n], user.currentDay));
 		} else {
 			//Create new record
-			newSheets.push(createNewRecord(raw[n]))
+			user.timeSheets.push(createNewRecord(raw[n], user.currentDay))
 		}
 	}
 
 	// Now add any anonymous timesheets
 	// No need to add unsaved sheets - they get saved to Chase on creation
 
-	return newSheets;
+	return user;
 }
 
 var checkUnsavedTimesheets = function (user) {
 	user.hasUnsaved = false;
-	user.unsavedDate = null;
 
 	var sheets = user.timeSheets;
-
 	var today = new Date().getDate();
 
-	//iterate through timesheets
-	for (var i = 0; i < sheets.length; i ++) {
-		var day = new Date(sheets[i].addedOnDay).getDate();
-		if ( sheets[i].appTime > 0 && day !== today) {
-			user.hasUnsaved = true;
-			user.unsavedDate = sheets[i].addedOnDay;
+
+	//iterate through timesheets and check if any time has changed
+	if ( user.currentDate !== today ) {
+		for (var i = 0; i < sheets.length; i ++) {
+			if ( sheets[i].appTime > 0 ) {
+				user.hasUnsaved = true;
+			}
 		}
 	}
-	
-	// Return user if no unsaved time
-	if (user.hasUnsaved === false) return user;
+
+	//If there isnt any unsaved date. Make currentDay and currentDate todays date.
+	if ( !user.hasUnsaved ) {
+		user.currentDay = new Date().getDay();
+		user.currentDate = new Date().getDate();
+	}
 
 	// Iterate through sheets and set ChaseTime to the day that is unsaved
 	for (var i = 0; i < sheets.length; i ++) {
-		sheets[i].chaseTime = parseTime(getDaysRecord(sheets[i].record, user.unsavedDate));
+		sheets[i].chaseTime = parseTime(getDaysRecord(sheets[i].record, user.currentDay));
 	}
+
 
 	user.timeSheets = sheets;
 
 	return user;
 }
 
-var addAppTime = function (sheet) {
+
+var addAppTime = function (sheet, day) {
 
 	//Get day of week
-	var day = new Date(sheet.addedOnDay).getDay();
+	//var day = new Date(sheet.addedOnDay).getDay();
 
 	//Add times together and format 00:00
 	var updatedTime = unparseTime(parseInt(sheet.appTime) + parseInt(sheet.chaseTime));
+	console.log(updatedTime, " - ", day)
 
 	//Update record
 	switch (day) {
@@ -203,7 +209,7 @@ var addAppTime = function (sheet) {
 			sheet.record[20] = updatedTime;
 			break;
 	}
-
+	console.log(sheet);
 	return sheet;
 }
 

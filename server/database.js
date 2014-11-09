@@ -55,6 +55,8 @@ var createUser = function (user, deferred) {
 		username: user.req.body.em,
 		password: user.req.body.pw,
 		cookies: user.cookies,
+		currentDay: new Date().getDay(),
+		currentDate: new Date().getDate(),
 		timeSheets: []
 	
 	}, function (err, results){
@@ -71,6 +73,10 @@ var getUserCookies = function (user) {
 	var id = ObjectId.createFromHexString(user.id)
 
 	users.find({'_id': id}).toArray(function(err, data) {
+		if (data.length < 1) {
+			deferred.reject(user);
+			return;
+		}
 		user.cookies = data[0].cookies;
 		deferred.resolve(user);
 	});
@@ -102,18 +108,20 @@ var saveTimeSheets = function (user) {
 	
 
 	users.find({'_id': id}).toArray(function(err, data) {
-		var stored = data[0].timeSheets;
+		user.stored = data[0];
 
 		//ON MONDAYS RUN SCHEDULED CRON JOB
 
-		user.timeSheets = functions.mergeTimesheets(stored, user.rawTimeSheets);
+		user = functions.mergeTimesheets(user, user.rawTimeSheets);
 		
+		// Check if any timesheets hav unsaved time.
+		// Return with time based on that day
+		user = functions.checkUnsavedTimesheets(user);
 
 		users.update({ _id: id }, {
 			$set: {
 				timeSheets: user.timeSheets
 			}
-
 		}, function (err, results) {
 			deferred.resolve(user);
 		}, 
@@ -236,7 +244,7 @@ var getAllTimesheets = function (user) {
 			if ( data[0].timeSheets[i].appTime === 0 ) continue;
 
 			//Add appTime to the chase record
-			data[0].timeSheets[i] = functions.addAppTime(data[0].timeSheets[i]);
+			data[0].timeSheets[i] = functions.addAppTime(data[0].timeSheets[i], data[0].currentDay);
 
 			//Add to final save object
 			sheets.push(functions.setupUpdateObject(data[0].timeSheets[i]));
@@ -254,6 +262,66 @@ var getAllTimesheets = function (user) {
 }
 
 
+var toggleHide = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
+				data[0].timeSheets[i].isHidden = user.isHidden;
+			}
+		}
+
+		users.update({ '_id': id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+
+var updateCurrentDates = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	if (!user.hasUnsaved) {
+
+		users.find({'_id': id}).toArray(function(err, data) {
+			users.update({ '_id': id }, {
+				$set: {
+					currentDay: new Date().getDay(),
+					currentDate: new Date().getDate()
+				}
+
+			}, function (err, results) {
+				deferred.resolve(user);
+			}, 
+			{ upsert: true });
+
+		});
+
+	} else {
+		deferred.resolve(user);
+	}
+
+	return deferred.promise;
+}
+
+
 module.exports = {
   createUser: 				createUser,
   updateUserCookies: 		updateUserCookies,
@@ -264,5 +332,7 @@ module.exports = {
   checkUnsavedTimesheets: 	checkUnsavedTimesheets,
   colour: 					colour,
   updateSingleJob: 			updateSingleJob,
-  getAllTimesheets: 		getAllTimesheets
+  getAllTimesheets: 		getAllTimesheets,
+  toggleHide: 				toggleHide,
+  updateCurrentDates: 		updateCurrentDates
 }

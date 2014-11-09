@@ -45,6 +45,9 @@ app.use('/timesheets', function(req, res) {
 	}
 
 	var promise = database.getUserCookies(user)
+		.fail(function (data) {
+			clientResponser.relogin(data);
+		})
 	.then(function (data) {
 		return chaseProxy.getTimesheets(data);
 	})
@@ -72,35 +75,15 @@ app.use('/timesheets', function(req, res) {
 		return database.saveTimeSheets(data);
 	})
 	.then(function (data) {
-		// Check if any timesheets hav unsaved time.
-		// Return time based on that day
-		var user = functions.checkUnsavedTimesheets(data);
-
+		return database.updateCurrentDates(data);
+	})
+	.then(function (data) {
 		// Return timesheets
 		clientResponser.timeSheets(user);
 	});
 });
 
 
-/* Change Colour - id: _id, job: _id, colour: {{'red', 'blue', 'yellow', null}} */
-app.use('/colour', function(req, res) {
-	var user = {req: req, res: res};
-	user.id = req.body.id;
-	
-	if (user.id.length !== 24) {
-		clientResponser.relogin(user);
-		return;
-	}
-
-	user.jobID = req.body.job;
-	user.colour = req.body.colour;
-
-	var promise = database.colour(user)
-		.then(function (data){
-			return clientResponser.success(data);
-		})
-
-});
 
 /* POST Update single timesheet (locally) - id: _id, todaysTime: [time in minutes], job: _id */
 app.use('/updatesingle', function(req, res) {
@@ -157,12 +140,58 @@ app.use('/saveall', function(req, res) {
 					})
 			}
 		})
+	
+	.then(function (data) {
+		return database.updateCurrentDates(data);
+	})
 	.then(function (data) {
 		console.log("saved all - respond")
 		return clientResponser.updatedAll(data);
 	});
 
 
+});
+
+
+
+/* Change Colour - id: _id, job: _id, colour: {{'red', 'blue', 'yellow', null}} */
+app.use('/colour', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.jobID = req.body.job;
+	user.colour = req.body.colour;
+
+	var promise = database.colour(user)
+		.then(function (data){
+			return clientResponser.success(data);
+		})
+});
+
+
+
+/* Hide / Show - id: _id, job: _id, hide: {{true, false}} */
+app.use('/togglehide', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.jobID = req.body.job;
+	user.isHidden = req.body.hide;
+
+	var promise = database.toggleHide(user)
+		.then(function (data){
+			return clientResponser.success(data);
+		})
 });
 
 

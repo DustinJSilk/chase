@@ -80,6 +80,12 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 				isOpen = false
 			});
 
+
+			$(".swipe-complete").on("click", function () {
+				var target = $(e.target).closest("li");
+				that.completeJob(target);
+			});
+
 			//Open / close job options
 			$(".item-link").on(bindTypeEnd, function(e){
 				var el = $(this);
@@ -111,14 +117,17 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			// });
 
 
+
 			//If showing unsaved items
             if ( this.options.unsaved ) {
             	$(".unsaved .finish ").on(bindTypeEnd, function () {
             		Backbone.history.navigate("#save-all", {trigger: true, replace: true});
             	})
             	$(".unsaved .cancel a").on(bindTypeEnd, function () {
-            		App.Framework7.alert("Any unsaved time will return to what is currently saved on Chase." , 'Are you sure?');
-            		Backbone.history.navigate("#purge-all", {trigger: true, replace: true});
+            		App.Framework7.confirm("Any unsaved time will return to what is currently saved on Chase." , 'Are you sure?', function () {
+            			Backbone.history.navigate("#purge-all", {trigger: true, replace: true});
+            		});
+            		
             	})
             }
 
@@ -241,6 +250,33 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			});
 		},
 
+		completeJob: function (target) {
+			var id = this.getId(target);
+
+			$.ajax({
+				url: App.urlRoot + "/togglehide",
+				type: "POST",
+				data: {
+					id: App.userID,
+					job: job,
+					hide: true
+				},
+				success: function () {
+					target.slideUp(400, function(){
+						target.addClass("complete");
+					});
+				},
+				error: function () {
+					if (err.status === 401) {
+                        App.Framework7.loginScreen();
+                    } else {
+                        App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
+                    }
+				}
+			});
+
+		},
+
 
 		//
 		// Minutes -> 00:00
@@ -347,6 +383,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			var parsed = that.unparseTime(time);
 			var target = $("#" + e.id).find(".job-timer .time").text(parsed);
 		},
+
+
 
 
 

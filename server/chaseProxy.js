@@ -104,8 +104,7 @@ var saveAllTimesheets = function (user) {
 	var deferred = Q.defer();
 
 	var body = "req=settsgrid&modifiedRecords=" + functions.jsonToURI(user.updateSheets) + "&deletedLineIDs=%5B%5D";
-	console.log(body);
-	return;
+
 	request.post(
 	    'http://192.168.15.53/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
 	    {
@@ -116,7 +115,6 @@ var saveAllTimesheets = function (user) {
 	    	}
 	    },
 	    function (error, response, body) {
-	    	console.log(response)
 	    	if (response.statusCode === 302) {
 	    		user.rejected = 302;
 	    		deferred.reject(user);
