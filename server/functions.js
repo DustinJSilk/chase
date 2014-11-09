@@ -79,7 +79,6 @@ var createNewRecord = function (data, currentDay) {
 		timingStamp: 		0,
 		chaseTime:  		parseTime(getDaysRecord(data, currentDay)), //Record from chase server. Used to check if chase data ever changes
 		appTime:  			0, // extra time added through app
-		//addedOnDay: 		timestamp,
 		record: 			data
 	}
 	return timeSheet;
@@ -137,7 +136,15 @@ var mergeTimesheets = function (user, raw) {
 	}
 
 	// Now add any anonymous timesheets
-	// No need to add unsaved sheets - they get saved to Chase on creation
+	for (var i = 0; i < old.length; i ++) {
+		console.log(old[i].customTitle)
+		console.log(old[i].isAnonymous)
+		if (old[i].isAnonymous === true) {
+			user.timeSheets.push(old[i]);
+		}
+	}
+
+	// No need to add non-anonymous unsaved sheets - they get saved to Chase on creation
 
 	return user;
 }
@@ -166,7 +173,9 @@ var checkUnsavedTimesheets = function (user) {
 
 	// Iterate through sheets and set ChaseTime to the day that is unsaved
 	for (var i = 0; i < sheets.length; i ++) {
-		sheets[i].chaseTime = parseTime(getDaysRecord(sheets[i].record, user.currentDay));
+		if ( !sheets[i].isAnonymous ) {
+			sheets[i].chaseTime = parseTime(getDaysRecord(sheets[i].record, user.currentDay));
+		}
 	}
 
 

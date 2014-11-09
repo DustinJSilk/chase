@@ -3,30 +3,32 @@ define(["app", "backbone"], function (App, Backbone) {
 	var TimesheetModel = Backbone.Model.extend({
 		
 		defaults: {
-			searchTerm: 			null,
+			searchTerm: 		null,
 			customTitle: 		"",
 			colour: 			null,
-			isHidden: 			false,
-			isAnonymous: 		false,
-			isTiming: 			false,
-			timingStamp: 		0,
-			todaysTime:  		0,
-			todaysDay: 			0,
-			record: 			[]
+			isAnonymous: 		1
 		},
 
-		sendUpdate: function () {
+		createNew: function () {
 			var that = this;
 
 			$.ajax({
-				url: App.urlRoot + "/updatesingle",
+				url: App.urlRoot + "/createnew",
 				type: "POST",
-                data: {id: App.userID, job: that.id, todaysTime: that.get("todaysTime")},
-                success: function (data) {
-                    console.log(data)
+                data: {
+                	id: App.userID, 
+                	customTitle: that.get("customTitle"),
+					colour: that.get("colour"),
+					isAnonymous: that.get("isAnonymous"),
+					linkedJob: {
+						
+					}
                 },
-                error: function (err, xhr, o) {
-                    console.log(err, xhr, o)
+                success: function (data) {
+                    Backbone.history.navigate("#index", {trigger: true, replace: true});
+                },
+                error: function () {
+                    App.Framework7.alert("Oh no! Something went wrong.", 'Error');
                 }
 			})
 		}

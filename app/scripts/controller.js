@@ -21,7 +21,8 @@ define(["app"], function (App) {
                             App.login.show(new LoginView());
                             App.Framework7.loginScreen();
                         } else {
-                            App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
+                            console.log(err, xhr, o)
+                            App.Framework7.alert("Oh no! Something went wrong.", 'Connection error');
                         }
                     }
                 })

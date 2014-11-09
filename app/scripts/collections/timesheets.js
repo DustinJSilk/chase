@@ -36,7 +36,7 @@ define(["app", "backbone", "models/timesheet"], function (App, Backbone, Timeshe
 				if (that.getColourRank(a.colour) > that.getColourRank(b.colour)) return -1;
 
 				// Sort by highest number
-				if (a.todaysTime !== b.todaysTime) return a.todaysTime - b.todaysTime;
+				if (a.todaysTime !== b.todaysTime) return b.todaysTime - a.todaysTime;
 
 				// Sort alphabetically
 				if(a.customTitle < b.customTitle) return -1;

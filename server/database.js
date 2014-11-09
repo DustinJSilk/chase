@@ -300,23 +300,60 @@ var updateCurrentDates = function (user) {
 
 	if (!user.hasUnsaved) {
 
-		users.find({'_id': id}).toArray(function(err, data) {
-			users.update({ '_id': id }, {
-				$set: {
-					currentDay: new Date().getDay(),
-					currentDate: new Date().getDate()
-				}
+		users.update({ '_id': id }, {
+			$set: {
+				currentDay: new Date().getDay(),
+				currentDate: new Date().getDate()
+			}
 
-			}, function (err, results) {
-				deferred.resolve(user);
-			}, 
-			{ upsert: true });
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
 
-		});
 
 	} else {
 		deferred.resolve(user);
 	}
+
+	return deferred.promise;
+}
+
+
+var createNew = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	if (user.job.isAnonymous) {
+
+	}
+
+	var timeSheetId = new ObjectId();
+
+	users.update({ '_id': id }, {
+		$push: {
+			timeSheets: {
+				id: 			timeSheetId,
+				customTitle: 	user.job.customTitle,
+				colour: 		user.job.colour,
+				isAnonymous: 	user.job.isAnonymous,
+				appTime: 		0,
+				chaseId: 		"",
+				isHidden: 		false,
+				isTiming: 		false,
+				timingStamp: 	0,
+				chaseTime:  	0,
+				record: 		[]
+			}
+		}
+
+	}, function (err, results) {
+		deferred.resolve(user);
+	}, 
+	{ upsert: true });
+
 
 	return deferred.promise;
 }
@@ -334,5 +371,6 @@ module.exports = {
   updateSingleJob: 			updateSingleJob,
   getAllTimesheets: 		getAllTimesheets,
   toggleHide: 				toggleHide,
-  updateCurrentDates: 		updateCurrentDates
+  updateCurrentDates: 		updateCurrentDates,
+  createNew: 				createNew
 }

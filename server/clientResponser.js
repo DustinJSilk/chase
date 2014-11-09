@@ -19,8 +19,9 @@ exports.relogin = function (user) {
 exports.timeSheets = function (user) {
 
 	var sheets = [];
-
+	console.log("responding")
 	for (var i = 0; i < user.timeSheets.length; i ++) {
+		console.log(i)
 		sheets[i] = {
 			_id: 				user.timeSheets[i].id,
 			customTitle: 		user.timeSheets[i].customTitle,
@@ -30,10 +31,14 @@ exports.timeSheets = function (user) {
 			isAnonymous: 		user.timeSheets[i].isAnonymous,
 			isTiming: 			user.timeSheets[i].isTiming,
 			timingStamp: 		user.timeSheets[i].timingStamp,
-			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime),
-			record: 			functions.getDaysRecord(user.timeSheets[i])
+			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime)
 		}
+		console.log("")
 
+		if (user.timeSheets[i].isAnonymous) {
+			continue;
+		}
+		
 		if (user.timeSheets[i].record[9].length < 1 && user.timeSheets[i].record[6].length < 1) {
 			sheets[i].customTitle = user.timeSheets[i].record[14];
 
@@ -54,7 +59,7 @@ exports.success = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
     user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
-    user.res.json({ success: true, colour: user.colour });
+    user.res.json({ success: true});
 }
 
 

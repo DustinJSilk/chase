@@ -154,6 +154,33 @@ app.use('/saveall', function(req, res) {
 
 
 
+app.use('/createnew', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.job = {
+		customTitle: req.body.customTitle,
+		colour: req.body.colour,
+		isAnonymous: Boolean(parseInt(req.body.isAnonymous)),
+		linkedJob: {
+
+		}
+	}
+
+	var promise = database.createNew(user)
+	.then(function (data) {
+		return clientResponser.success(data);
+	})
+
+});
+
+
+
 /* Change Colour - id: _id, job: _id, colour: {{'red', 'blue', 'yellow', null}} */
 app.use('/colour', function(req, res) {
 	var user = {req: req, res: res};

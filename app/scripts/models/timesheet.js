@@ -12,9 +12,7 @@ define(["app", "backbone"], function (App, Backbone) {
 			isAnonymous: 		false,
 			isTiming: 			false,
 			timingStamp: 		0,
-			todaysTime:  		0,
-			todaysDay: 			0,
-			record: 			[]
+			todaysTime:  		0
 		},
 
 		initialize: function () {

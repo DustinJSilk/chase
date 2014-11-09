@@ -19,7 +19,6 @@ define(["app", "marionette", "text!templates/add-new.html"], function (App, Mari
 		},
 
 		onShow: function () {
-			console.log("showing")
 			var that = this;
 			App.mainView.router.loadContent($("#add-new-template").html())
 
@@ -27,7 +26,26 @@ define(["app", "marionette", "text!templates/add-new.html"], function (App, Mari
             	App.mainView.back();
             	Backbone.history.navigate("#index", {trigger: true, replace: true});
             	that.remove();
-            })
+            });
+
+            this.initEvents();
+		},
+
+		initEvents: function () {
+			var that = this;
+
+			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
+			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+
+			$(".add-new a.finish").on(bindTypeEnd, function(e){
+				that.submit();
+			})
+		},
+
+		submit: function () {
+			this.model.set("customTitle", $("#custom-title").val());
+
+			this.model.createNew();
 		}
 	});
 

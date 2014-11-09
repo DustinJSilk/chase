@@ -49,9 +49,6 @@ button:focus,
 a.button:focus,
 select:focus,
 textarea:focus {
-  -webkit-box-shadow: #0066ff 0 0 5px 0;
-  -moz-box-shadow: #0066ff 0 0 5px 0;
-  box-shadow: #0066ff 0 0 5px 0;
   z-index: 1;
 }
 
