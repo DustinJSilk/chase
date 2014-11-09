@@ -7,7 +7,7 @@ define(["app"], function (App) {
                     type: "POST",
                     data: {id: App.userID},
                     success: function (data) {
-                        App.Jobs = new TimesheetsCollection(data.timeSheets.sheets)
+                        App.Jobs = new TimesheetsCollection(TimesheetsCollection.prototype.parse(data.timeSheets.sheets));
                         
                         if (data.timeSheets.unsaved === false) {
                             App.page.show(new IndexView({collection: App.Jobs, unsaved: false }));

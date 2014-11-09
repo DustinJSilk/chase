@@ -81,7 +81,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			});
 
 
-			$(".swipe-complete").on("click", function () {
+			$(".swipe-complete").on("click", function (e) {
 				var target = $(e.target).closest("li");
 				that.completeJob(target);
 			});
@@ -172,7 +172,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			var that = this;
 
 			//- With callbacks on click
-			$('.favourite').on('click', function () {
+			$('.colourize').on('click', function () {
+				var el = this;
 			    var buttons1 = [
 				    {
 			            text: 'Pin by colour',
@@ -182,21 +183,21 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			            text: 'Red',
 			            color: 'red',
 			            onClick: function () {
-			                that.changeColour("red", this)
+			                that.changeColour("red", el)
 			            }
 			        },
 			        {
 			            text: 'Yellow',
 			            color: 'yellow',
 			            onClick: function () {
-			                that.changeColour("yellow", this)
+			                that.changeColour("yellow", el)
 			            }
 			        },
 			        {
 			            text: 'Blue',
 			            color: 'blue',
 			            onClick: function () {
-			                that.changeColour("blue", this)
+			                that.changeColour("blue", el)
 			            }
 			        }
 			    ];
@@ -226,12 +227,15 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		},
 
 		changeColour: function (colour, el) {
-			var colour = ($(el).closest("li").hasClass(colour)) ? "" : colour;
-			$(el).closest("li").removeClass("red yellow blue");
-			$(el).closest("li").addClass(colour);
-			App.Framework7.swipeoutClose($(el).closest("li"))
-			
 			var job = this.getId(el);
+
+			var colour = ($(el).closest("li").hasClass(colour)) ? "" : colour;
+
+			
+			$(el).closest("li").removeClass("red yellow blue").addClass(colour);
+
+			//App.Framework7.swipeoutClose($(el).closest("li"));
+			
 			
 			$.ajax({
 				url: App.urlRoot + "/colour",
@@ -242,7 +246,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 					colour: colour
 				},
 				success: function () {
-
+					console.log("success")
 				},
 				error: function () {
 					
@@ -251,7 +255,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		},
 
 		completeJob: function (target) {
-			var id = this.getId(target);
+			var job = this.getId(target);
 
 			$.ajax({
 				url: App.urlRoot + "/togglehide",

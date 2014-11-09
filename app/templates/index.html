@@ -3,7 +3,13 @@
 
 
 		<% for (var i = 0; i < data.sheets.length; i ++) { %>
-			<li class="swipeout timesheet-item <%= data.sheets[i].get("colour") %>" id="<%= data.sheets[i].get("_id") %>">
+			<%
+				var isComplete = "";
+				if ( data.sheets[i].get("isHidden") ) {
+					isComplete = "complete";
+				}
+			%>
+			<li class="swipeout timesheet-item <%= data.sheets[i].get("colour") %> <%= isComplete %>" id="<%= data.sheets[i].get("_id") %>">
 				<div class="swipeout-content">
 					<a id="#job/<%= data.sheets[i].get("_id") %>" class="item-link item-content">
 		                <div class="item-inner">
@@ -20,11 +26,11 @@
 		        </div>
 
 				<div class="mobile swipeout-actions-left">
-					<a class="swipe-complete"></a>
+					<a class="swipe-complete swipeout-overswipe"></a>
 				</div>
 
 				<div class="mobile swipeout-actions-right">
-					<a class="hide">Hide</a>
+					<a class="swipe-timer"></a>
 				</div>
 
 			</li>
@@ -37,7 +43,7 @@
 					</div>  
 				</form>
 				<div class="mobile job-links">
-					<a class="favourite hide-for-unsaved">Favourite</a>
+					<a class="colourize hide-for-unsaved">Favourite</a>
 					<a class="hide-for-unsaved">Start Timing</a>
 					<a>Edit</a>
 				</div> 
