@@ -58,7 +58,7 @@ app.use('/timesheets', function(req, res) {
 						return chaseProxy.login(data)
 					})
 					.then(function (data){
-	            		return database.insertDetails(user);
+	            		return database.insertDetails(data);
 					})
 					.then(function (data){
 						return chaseProxy.getTimesheets(data)
@@ -154,28 +154,84 @@ app.use('/saveall', function(req, res) {
 
 
 
-app.use('/createnew', function(req, res) {
+app.use('/linkanonymous', function(req, res) {
 	var user = {req: req, res: res};
 	user.id = req.body.id;
-
 	if (user.id.length !== 24) {
 		clientResponser.relogin(user);
 		return;
 	}
 
-	user.job = {
-		customTitle: req.body.customTitle,
-		colour: req.body.colour,
-		isAnonymous: Boolean(parseInt(req.body.isAnonymous)),
-		linkedJob: {
 
+});
+
+app.use('/createnew', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	// Setup linked job
+	var linkedJob = {};
+	if (Boolean(parseInt(req.body.isAnonymous))) {
+		linkedJob = {
+			jobid: 				req.body.job.jobid,
+			customerid: 		req.body.job.customerid,
+			productid: 			req.body.job.productid,
+			tasktypeid: 		req.body.job.tasktypeid,
+			notes: 				req.body.job.notes
 		}
 	}
 
-	var promise = database.createNew(user)
-	.then(function (data) {
-		return clientResponser.success(data);
-	})
+	user.job = {
+		customTitle: 		req.body.customTitle,
+		colour: 			req.body.colour,
+		isAnonymous: 		Boolean(parseInt(req.body.isAnonymous)),
+		linkedJob: 			linkedJob
+	}
+
+	// If anonymour - create anonymous timesheet and end function
+	if (Boolean(parseInt(req.body.isAnonymous))) {
+		var promise = database.createNewJob(user)
+		.then(function (data) {
+			return clientResponser.success(data);
+		});
+
+		return;
+	}
+
+
+	// Otherwise add to chase and return. When navigating to index page it will automatically update local database
+	var promise = (function sequence () {
+		var promise = functions.createNewLineItem(user)
+			.then(function (data) {
+				return chaseProxy.saveNewLine(data);
+			})
+				.fail(function (data) {
+					if (data.rejected === 302) {
+						var relogin = database.fetchAuth(data)
+							.then(function (data) {
+								return chaseProxy.login(data)
+							})
+							.then(function (data){
+			            		return database.insertDetails(data);
+							})
+							.then(function (data){
+								return promise.call();
+							});
+
+					}
+				})
+			.then(function (data) {
+				return clientResponser.success(data);
+			});
+	});
+
+	promise.call();
+
+
 
 });
 
@@ -220,6 +276,101 @@ app.use('/togglehide', function(req, res) {
 			return clientResponser.success(data);
 		})
 });
+
+
+/* Search */
+app.use('/search', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.searchTerm = req.body.searchTerm;
+
+	var promise = (function trySearch() {
+			return database.getUserCookies(user)
+			.fail(function (data) {
+				clientResponser.relogin(data);
+			})
+		.then(function (data){
+			return chaseProxy.searchJobNumber(data);
+		})
+		.fail(function (data) {
+			if (data.rejected === 302) {
+				var relogin = database.fetchAuth(data)
+					.then(function (data) {
+						return chaseProxy.login(data)
+					})
+					.then(function (data){
+	            		return database.insertDetails(data);
+					})
+					.then(function (data){
+						return promise.call();
+					});
+
+			}
+		})
+		.then(function (data){
+			return clientResponser.searchJob(data);
+		})
+	});
+	
+	promise.call();
+});
+
+
+
+
+/* Search */
+app.use('/grabjob', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.jobNumber = req.body.jobNumber;
+
+	var promise = (function sequence () {
+			return database.getUserCookies(user)
+			.fail(function (data) {
+				clientResponser.relogin(data);
+			})
+		.then(function (data){
+			return chaseProxy.grabJob(data);
+		})
+			.fail(function (data) {
+				console.log("rejecting")
+				if (data.rejected === 302) {
+					console.log("302")
+					var relogin = database.fetchAuth(data)
+						.then(function (data) {
+							return chaseProxy.login(data)
+						})
+						.then(function (data){
+		            		return database.insertDetails(data);
+						})
+						.then(function (data){
+							return promise.call();
+						}).end();
+				}
+			})
+		.then(function (data){
+			return clientResponser.grabJob(data);
+		})
+	});
+
+	//Start the sequence
+	promise.call();
+});
+
+
+
 
 
 

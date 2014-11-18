@@ -100,14 +100,18 @@
 	width: 100px;
 	height: 100px;
 	text-align: center;
-	vertical-align: middle;
-	padding-top: 40px;
+	padding-top: 32px;
 }
 
 .job-timer .time {
-	vertical-align: middle;
+	font-size: 24px;
+	font-family: 'opensans-bold';
+	letter-spacing: 0.5px;
 }
 
+.job-timer .time span {
+	margin: 0 4px;
+}
 .timer-slider {
 	display: none;
 }
@@ -208,15 +212,15 @@
 }
 
 .navbar, .toolbar {
-	height: 77px;
+	height: 63px;
 }
 
 .navbar-through .page-content, .navbar-fixed .page-content {
-	padding-top: 77px;
+	padding-top: 63px;
 }
 
 .navbar-inner, .toolbar-inner {
-	height: 77px;
+	height: 63px;
 	background-color: #000;
 	color: #fff;
 }
@@ -296,6 +300,10 @@
 	cursor: pointer;
 }
 
+.timesheet-item .swipeout-content {
+	border-bottom: #ebebeb solid 1px;
+}
+
 .range-slider input[type="range"] {
 	background-size: 100% 3px;
 }
@@ -334,7 +342,51 @@
 	display: none;
 }
 
+.complete.show {
+	display: block;
+}
 
+.timesheets-loader {
+	margin: 0px auto -20px;
+	display: block;
+	position: relative;
+	top: -20px;
+	-webkit-transition: top 0.4s ease;
+	-o-transition: top 0.4s ease;
+	transition: top 0.4s ease;
+	-webkit-animation: preloader-spin 1s step-end infinite!important;
+	animation: preloader-spin 1s step-end infinite!important;
+}
+
+.timesheets-loader.show {
+	top: 20px;
+}
+
+.list-block.media-list .item-link .item-title-row, .list-block li.media-item .item-link .item-title-row {
+	background: none;
+}
+
+.list-block .item-inner {
+	border-bottom: none;
+}
+
+.item-title {
+	font-size: 22px;
+	font-family: 'opensans-regular';
+	letter-spacing: 0.4px;
+}
+
+.list-block .item-subtitle {
+	font-family: 'opensans-light';
+	letter-spacing: 0.4px;
+	font-size: 14px;
+	color: #888888;
+	letter-spacing: 0.9px;
+}
+
+.timesheet-item .item-inner {
+	padding-top: 20px!important;
+}
 
 
 /* Swip out left */

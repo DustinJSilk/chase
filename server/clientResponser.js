@@ -19,13 +19,12 @@ exports.relogin = function (user) {
 exports.timeSheets = function (user) {
 
 	var sheets = [];
-	console.log("responding")
+
 	for (var i = 0; i < user.timeSheets.length; i ++) {
-		console.log(i)
 		sheets[i] = {
 			_id: 				user.timeSheets[i].id,
 			customTitle: 		user.timeSheets[i].customTitle,
-			jobSubtitle: 		"",
+			subtitle: 			"",
 			colour: 			user.timeSheets[i].colour,
 			isHidden: 			user.timeSheets[i].isHidden,
 			isAnonymous: 		user.timeSheets[i].isAnonymous,
@@ -33,7 +32,6 @@ exports.timeSheets = function (user) {
 			timingStamp: 		user.timeSheets[i].timingStamp,
 			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime)
 		}
-		console.log("")
 
 		if (user.timeSheets[i].isAnonymous) {
 			continue;
@@ -50,22 +48,37 @@ exports.timeSheets = function (user) {
 	}
 
 	user.res.header('Access-Control-Allow-Origin', '*');
-    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.json({ success: true, timeSheets: {unsaved: user.hasUnsaved, sheets: sheets, day: user.day} });
 }
 
 exports.success = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
-    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.json({ success: true});
 }
 
+exports.searchJob = function (user) {
+	user.res.header('Access-Control-Allow-Origin', '*');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
+    user.res.header('Access-Control-Allow-Headers', 'Content-Type');
+    user.res.status(200)
+    user.res.json({ success: true, code: 200, results: user.results });
+}
+
+exports.grabJob = function (user) {
+	user.res.header('Access-Control-Allow-Origin', '*');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
+    user.res.header('Access-Control-Allow-Headers', 'Content-Type');
+    user.res.status(200)
+    user.res.json({ success: true, code: 200, results: user.results });
+}
 
 exports.updatedJob = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
-    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.status(200)
     user.res.json({ success: true, code: 200 });
@@ -73,7 +86,7 @@ exports.updatedJob = function (user) {
 
 exports.couldntUpdate = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
-    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.status(503)
     user.res.json({ success: false, code: 503, message: "Couldn't update todays time."  });
@@ -81,7 +94,7 @@ exports.couldntUpdate = function (user) {
 
 exports.updatedAll = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
-    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.json({ success: true });
 }

@@ -17,6 +17,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			for ( var i = 0; i < data.sheets.length; i ++ ) {
 				data.sheets[i].todaysTime = this.unparseTime(data.sheets[i].get("todaysTime"));
 			}
+			console.log(data)
 			return data;
 		},
 
@@ -115,6 +116,10 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			// 		e.preventDefault();
 			// 	}
 			// });
+
+			$("#show-completed").on(bindTypeEnd, function (){
+				$(".timesheet-item.complete").slideToggle()
+			})
 
 
 
@@ -285,18 +290,24 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		//
 		// Minutes -> 00:00
 		//
-		unparseTime: function (time) {
+		unparseTime: function (time, addSpan) {
 			var hours = ( Math.floor(time / 60) === 0 ) ? "0" : Math.floor(time / 60);
 			var minutes = ( time % 60 < 10 ) ? "0" + (time % 60) : (time % 60);
 
-			var str = hours + ":" + minutes;
+			var str;
+
+			if (addSpan) {
+				str = hours + "<span>:</span>" + minutes;
+			} else {
+				str = hours + ":" + minutes;
+			}
+			
 			return str;
 		},
 
 
 		toggleJobOptions: function (el) {			
-			var id = this.getId(el);
-			var slider = $("#form-" + id).parent();
+			var slider = el.parent().find(".timer-slider");
 			slider.slideToggle();
 		},
 
@@ -328,7 +339,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			$(".timer-slider").each(function (index) {
 				var id = that.getId(this);
  				var amount = that.collection.get(id).get("todaysTime");
- 				var form = "#form-" + id;
+ 				var form = $(this).find("form");
 
  				if (amount === 0) amount = 0.1;
 
@@ -338,8 +349,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 				App.Framework7.formFromJSON(form, formData);
 			});
 
-			var formData = App.Framework7.formToJSON("#form-544eab9edcdc6000000ca00d");
-			var value = formData.slider;
+			// var formData = App.Framework7.formToJSON("#form-544eab9edcdc6000000ca00d");
+			// var value = formData.slider;
 		},
 
 		initSliderData: function () {

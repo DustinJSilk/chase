@@ -27,7 +27,7 @@
 		<ul>
 			<li><a href="#save-all">Save all timesheets</a></li>
 			<li><a>Add new timesheet</a></li>
-			<li><a>Completed</a></li>
+			<li><a id="show-completed" class="close-panel">Show completed jobs</a></li>
 			<li><a>Clear all unsaved time</a></li>
 			<li><a>Settings</a></li>
 		</ul>
@@ -49,6 +49,10 @@
 					        </div>
 							<div class="center total-time"></div>
 							<div class="right plus">
+								<label class="label-switch toggle-complete">
+								    <input type="checkbox">
+								    <div class="checkbox"></div>
+							  	</label>
 					            <a href="#add-new" class="add-new"><img src="img/plus.jpg"/></a>
 					        </div>
 						</div>
@@ -58,6 +62,7 @@
 							<div class="preloader"></div>
 							<div class="pull-to-refresh-arrow"></div>
 					    </div>
+					    <span class="timesheets-loader preloader"></span>
 						<div id="page"></div>
 					</div>
 				</div>

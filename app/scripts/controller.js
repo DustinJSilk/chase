@@ -1,22 +1,30 @@
 define(["app"], function (App) {
     var controller = {
         index: function () {
+
+            $(".timesheets-loader").addClass("show");
+
             require([ "app", "views/index", "collections/timesheets", "views/login" ], function (App, IndexView, TimesheetsCollection, LoginView) {
                 $.ajax({
                     url: App.urlRoot + "/timesheets",
                     type: "POST",
                     data: {id: App.userID},
                     success: function (data) {
-                        App.Jobs = new TimesheetsCollection(TimesheetsCollection.prototype.parse(data.timeSheets.sheets));
-                        
-                        if (data.timeSheets.unsaved === false) {
-                            App.page.show(new IndexView({collection: App.Jobs, unsaved: false }));
-                        } else {
-                            Backbone.history.navigate("#unsaved", {trigger: true, replace: true});
-                        }
+                        $(".timesheets-loader").removeClass("show");
+
+                        setTimeout(function(){
+                            App.Jobs = new TimesheetsCollection(TimesheetsCollection.prototype.parse(data.timeSheets.sheets));
+                            
+                            if (data.timeSheets.unsaved === false) {
+                                App.page.show(new IndexView({collection: App.Jobs, unsaved: false }));
+                            } else {
+                                Backbone.history.navigate("#unsaved", {trigger: true, replace: true});
+                            }
+                        }, 400);
                         
                     },
                     error: function (err, xhr, o) {
+                        $(".timesheets-loader").removeClass("show");
                         if (err.status === 401) {
                             App.login.show(new LoginView());
                             App.Framework7.loginScreen();

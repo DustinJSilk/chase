@@ -1,10 +1,11 @@
+var config = require('./config.json');
 var mongo = require('mongodb');
 var Q = require('q');
 var clientResponser = require('./clientResponser.js');
 var functions = require('./functions.js');
 
 var users;
-mongo.connect("mongodb://localhost/chase", function (err, db) {
+mongo.connect(config.database_connection, function (err, db) {
 	users = db.collection('users');	
 });
 
@@ -17,10 +18,13 @@ var insertDetails = function (user) {
 	}
 	user.cookies = cookie;
 
+	// If user id exists update it.
 	if (user.id !== undefined && user.id !== null) {
 		updateUserCookies(user, deferred);
 
 	} else {
+		// First check is the inputted user name exists. If it does - update that and return its ID
+		// No need to worry about security - This is only after successful login with Chase
 		users.find({'username': user.req.body.em}).toArray(function (err, data) {
 			if (data.length > 0) {
 				user.id = data[0]._id.toHexString();
@@ -272,7 +276,7 @@ var toggleHide = function (user) {
 
 		for (var i = 0; i < data[0].timeSheets.length; i ++) {
 			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
-				data[0].timeSheets[i].isHidden = user.isHidden;
+				data[0].timeSheets[i].isHidden = (user.isHidden === "true");
 			}
 		}
 
@@ -320,7 +324,7 @@ var updateCurrentDates = function (user) {
 }
 
 
-var createNew = function (user) {
+var createNewJob = function (user) {
 	var deferred = Q.defer();
 
 	var ObjectId = mongo.ObjectID;

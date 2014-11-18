@@ -61,6 +61,12 @@ var unparseTime = function (time) {
 	return str.trim();
 }
 
+// YYY/MM/DD
+var formatDate = function (dateObject) {
+	var date = dateObject.getFullYear() + "/" + (dateObject.getMonth() + 1) + "/" + dateObject.getDate();
+	return date;
+}
+
 
 var createNewRecord = function (data, currentDay) {
 	var ObjectID = mongo.ObjectID;
@@ -284,6 +290,27 @@ var setupUpdateObject = function (sheet) {
 }
 
 
+//When adding a new item to chase this is the object to send it
+var createNewLineItem = function (user) {
+	var newJob = {  
+		timesheetitemid: 		null,
+		jobid: 					6960,
+		customerid: 			32,
+		productid: 				727,
+		taskid: 				null,
+		tasktypeid: 			110,
+		day1Time: 				0,
+		day2Time: 				0,
+		day3Time: 				0,
+		day4Time: 				0,
+		day5Time: 				0,
+		day6Time: 				0,
+		day7Time: 				0,
+		notes: 					"test"
+	}
+}
+
+
 var jsonToURI = function (json) { 
 	return encodeURI(JSON.stringify(json)); 
 }
@@ -297,7 +324,8 @@ module.exports = {
 	setupUpdateObject: 		setupUpdateObject,
 	addAppTime: 			addAppTime,
 	jsonToURI: 				jsonToURI,
-	checkUnsavedTimesheets: checkUnsavedTimesheets
+	checkUnsavedTimesheets: checkUnsavedTimesheets,
+	formatDate: 			formatDate
 }
 
 

@@ -1,0 +1,4 @@
+{
+	"chase_url": 				"http://192.168.15.53",
+	"database_connection": 		"mongodb://localhost/chase"
+}
