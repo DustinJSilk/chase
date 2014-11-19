@@ -143,8 +143,6 @@ var mergeTimesheets = function (user, raw) {
 
 	// Now add any anonymous timesheets
 	for (var i = 0; i < old.length; i ++) {
-		console.log(old[i].customTitle)
-		console.log(old[i].isAnonymous)
 		if (old[i].isAnonymous === true) {
 			user.timeSheets.push(old[i]);
 		}
@@ -198,7 +196,6 @@ var addAppTime = function (sheet, day) {
 
 	//Add times together and format 00:00
 	var updatedTime = unparseTime(parseInt(sheet.appTime) + parseInt(sheet.chaseTime));
-	console.log(updatedTime, " - ", day)
 
 	//Update record
 	switch (day) {
@@ -224,7 +221,7 @@ var addAppTime = function (sheet, day) {
 			sheet.record[20] = updatedTime;
 			break;
 	}
-	console.log(sheet);
+
 	return sheet;
 }
 
@@ -308,6 +305,7 @@ var createNewLineItem = function (user) {
 		day7Time: 				0,
 		notes: 					"test"
 	}
+
 }
 
 

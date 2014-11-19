@@ -109,7 +109,6 @@ var saveTimeSheets = function (user) {
 
 	var ObjectID = mongo.ObjectID;
 	var id = ObjectID.createFromHexString(user.id);
-	
 
 	users.find({'_id': id}).toArray(function(err, data) {
 		user.stored = data[0];
@@ -376,5 +375,5 @@ module.exports = {
   getAllTimesheets: 		getAllTimesheets,
   toggleHide: 				toggleHide,
   updateCurrentDates: 		updateCurrentDates,
-  createNew: 				createNew
+  createNewJob: 				createNewJob
 }

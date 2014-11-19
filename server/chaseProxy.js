@@ -62,11 +62,16 @@ var getTimesheets = function (user) {
 	    	}, 
 	    	headers: {
 	    		Cookie: user.cookies
-	    	}
+	    	},
+	    	timeout: 20000
 	    },
 	    function (error, response, body) {
-	    	if (!response) {
-	    		user.rejected = 503;
+	    	if (error && error.code === "ETIMEDOUT") {
+	    		user.rejected = 408;
+	    		deferred.reject(user);
+
+	    	} else if (response.statusCode === 302) {
+	    		user.rejected = 302;
 	    		deferred.reject(user);
 
 	    	} else if (response.statusCode === 302) {
@@ -175,7 +180,7 @@ var searchJobNumber = function (user) {
 
 	    	} else {
 		    	var decoded = Ext.Ext.JSON.decode(body);
-		    	user.results = decoded.dataForQuickSearch;
+		    	user.results = decoded.dataForQuickSearch[0][1];
 
 		        if (!error && response.statusCode == 200 && decoded.success === true) {
 					deferred.resolve(user);
@@ -266,7 +271,7 @@ var saveNewLine = function (user) {
 	    	form: { 
 	    		req: 'save_line_item',
 	    		currentDate: functions.formatDate(new Date()),
-	    		
+
 	    	}, 
 	    	headers: {
 	    		Cookie: user.cookies

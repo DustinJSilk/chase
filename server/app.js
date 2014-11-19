@@ -44,43 +44,44 @@ app.use('/timesheets', function(req, res) {
 		return;
 	}
 
-	var promise = database.getUserCookies(user)
-		.fail(function (data) {
-			clientResponser.relogin(data);
+	var promise = (function getTimesheets () {
+			return database.getUserCookies(user)
+			.fail(function (data) {
+				clientResponser.relogin(data);
+			})
+		.then(function (data) {
+			return chaseProxy.getTimesheets(data);
 		})
-	.then(function (data) {
-		return chaseProxy.getTimesheets(data);
-	})
-		.fail(function (data) {
-			if (data.rejected === 302) {
-				var relogin = database.fetchAuth(data)
-					.then(function (data) {
-						return chaseProxy.login(data)
-					})
-					.then(function (data){
-	            		return database.insertDetails(data);
-					})
-					.then(function (data){
-						return chaseProxy.getTimesheets(data)
-					})
-					.then(function (data){
-						return database.saveTimeSheets(data);
-					})
-					.then(function (data) {
-						clientResponser.timeSheets(data);
-					});
-			}
+			.fail(function (data) {
+				if (data.rejected === 302) {
+					var relogin = database.fetchAuth(data)
+						.then(function (data) {
+							return chaseProxy.login(data)
+						})
+						.then(function (data){
+		            		return database.insertDetails(data);
+						})
+						.then(function (data){
+							return promise.call();
+						}).end();
+				} else if (data.rejected === 408) {
+					var timeout = clientResponder.timeout(data).end();
+					return;
+				}
+			})
+		.then(function (data) {
+			return database.saveTimeSheets(data);
 		})
-	.then(function (data) {
-		return database.saveTimeSheets(data);
-	})
-	.then(function (data) {
-		return database.updateCurrentDates(data);
-	})
-	.then(function (data) {
-		// Return timesheets
-		clientResponser.timeSheets(user);
+		.then(function (data) {
+			return database.updateCurrentDates(data);
+		})
+		.then(function (data) {
+			// Return timesheets
+			clientResponser.timeSheets(user);
+		});
 	});
+
+	promise.call();
 });
 
 
@@ -154,128 +155,8 @@ app.use('/saveall', function(req, res) {
 
 
 
-app.use('/linkanonymous', function(req, res) {
-	var user = {req: req, res: res};
-	user.id = req.body.id;
-	if (user.id.length !== 24) {
-		clientResponser.relogin(user);
-		return;
-	}
 
 
-});
-
-app.use('/createnew', function(req, res) {
-	var user = {req: req, res: res};
-	user.id = req.body.id;
-	if (user.id.length !== 24) {
-		clientResponser.relogin(user);
-		return;
-	}
-
-	// Setup linked job
-	var linkedJob = {};
-	if (Boolean(parseInt(req.body.isAnonymous))) {
-		linkedJob = {
-			jobid: 				req.body.job.jobid,
-			customerid: 		req.body.job.customerid,
-			productid: 			req.body.job.productid,
-			tasktypeid: 		req.body.job.tasktypeid,
-			notes: 				req.body.job.notes
-		}
-	}
-
-	user.job = {
-		customTitle: 		req.body.customTitle,
-		colour: 			req.body.colour,
-		isAnonymous: 		Boolean(parseInt(req.body.isAnonymous)),
-		linkedJob: 			linkedJob
-	}
-
-	// If anonymour - create anonymous timesheet and end function
-	if (Boolean(parseInt(req.body.isAnonymous))) {
-		var promise = database.createNewJob(user)
-		.then(function (data) {
-			return clientResponser.success(data);
-		});
-
-		return;
-	}
-
-
-	// Otherwise add to chase and return. When navigating to index page it will automatically update local database
-	var promise = (function sequence () {
-		var promise = functions.createNewLineItem(user)
-			.then(function (data) {
-				return chaseProxy.saveNewLine(data);
-			})
-				.fail(function (data) {
-					if (data.rejected === 302) {
-						var relogin = database.fetchAuth(data)
-							.then(function (data) {
-								return chaseProxy.login(data)
-							})
-							.then(function (data){
-			            		return database.insertDetails(data);
-							})
-							.then(function (data){
-								return promise.call();
-							});
-
-					}
-				})
-			.then(function (data) {
-				return clientResponser.success(data);
-			});
-	});
-
-	promise.call();
-
-
-
-});
-
-
-
-/* Change Colour - id: _id, job: _id, colour: {{'red', 'blue', 'yellow', null}} */
-app.use('/colour', function(req, res) {
-	var user = {req: req, res: res};
-	user.id = req.body.id;
-	
-	if (user.id.length !== 24) {
-		clientResponser.relogin(user);
-		return;
-	}
-
-	user.jobID = req.body.job;
-	user.colour = req.body.colour;
-
-	var promise = database.colour(user)
-		.then(function (data){
-			return clientResponser.success(data);
-		})
-});
-
-
-
-/* Hide / Show - id: _id, job: _id, hide: {{true, false}} */
-app.use('/togglehide', function(req, res) {
-	var user = {req: req, res: res};
-	user.id = req.body.id;
-	
-	if (user.id.length !== 24) {
-		clientResponser.relogin(user);
-		return;
-	}
-
-	user.jobID = req.body.job;
-	user.isHidden = req.body.hide;
-
-	var promise = database.toggleHide(user)
-		.then(function (data){
-			return clientResponser.success(data);
-		})
-});
 
 
 /* Search */
@@ -365,12 +246,152 @@ app.use('/grabjob', function(req, res) {
 		})
 	});
 
-	//Start the sequence
 	promise.call();
 });
 
 
 
+
+app.use('/addnew', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+
+	user.job = {
+		customTitle: 		req.body.customTitle,
+		colour: 			req.body.colour,
+		isAnonymous: 		Boolean(parseInt(req.body.isAnonymous)),
+		linkedJob: 			{
+			jobid: 				req.body.job.jobid,
+			customerid: 		req.body.job.customerid,
+			productid: 			req.body.job.productid,
+			tasktypeid: 		req.body.job.tasktypeid,
+			notes: 				req.body.job.notes
+		}
+	}
+
+
+	// Otherwise add to chase and return. When navigating to index page it will automatically update local database
+	var promise = (function sequence () {
+		var promise = functions.createNewLineItem(user)
+			.then(function (data) {
+				return chaseProxy.saveNewLine(data);
+			})
+				.fail(function (data) {
+					if (data.rejected === 302) {
+						var relogin = database.fetchAuth(data)
+							.then(function (data) {
+								return chaseProxy.login(data)
+							})
+							.then(function (data){
+			            		return database.insertDetails(data);
+							})
+							.then(function (data){
+								return promise.call();
+							});
+
+					}
+				})
+			.then(function (data) {
+				return clientResponser.success(data);
+			});
+	});
+
+	promise.call();
+
+
+
+});
+
+
+
+
+app.use('/addanonymous', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.job = {
+		customTitle: 		req.body.customTitle,
+		colour: 			req.body.colour,
+		isAnonymous: 		Boolean(parseInt(req.body.isAnonymous)),
+		linkedJob: 			linkedJob
+	}
+
+	// If anonymour - create anonymous timesheet and end function
+	if (Boolean(parseInt(req.body.isAnonymous))) {
+		var promise = database.createNewJob(user)
+		.then(function (data) {
+			return clientResponser.success(data);
+		});
+
+		return;
+	}
+
+
+});
+
+
+
+app.use('/linkanonymous', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+
+})
+
+
+
+/* Change Colour - id: _id, job: _id, colour: {{'red', 'blue', 'yellow', null}} */
+app.use('/colour', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.jobID = req.body.job;
+	user.colour = req.body.colour;
+
+	var promise = database.colour(user)
+		.then(function (data){
+			return clientResponser.success(data);
+		})
+});
+
+
+
+/* Hide / Show - id: _id, job: _id, hide: {{true, false}} */
+app.use('/togglehide', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+	
+	if (user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	user.jobID = req.body.job;
+	user.isHidden = req.body.hide;
+
+	var promise = database.toggleHide(user)
+		.then(function (data){
+			return clientResponser.success(data);
+		})
+});
 
 
 
