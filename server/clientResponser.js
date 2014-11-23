@@ -4,7 +4,7 @@ exports.login = function (user) {
 	user.res.header('Access-Control-Allow-Origin', '*');
     user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
-    user.res.json({ success: true, id: user.id });
+    user.res.json({ success: true, id: user.id, userType: user.userType });
 }
 
 exports.relogin = function (user) {
@@ -33,13 +33,16 @@ exports.timeSheets = function (user) {
 			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime)
 		}
 
-		if (user.timeSheets[i].isAnonymous) {
+		if (sheets[i].isAnonymous === 1) {
+            sheets[i].subtitle = user.timeSheets[i].record[13]
 			continue;
 		}
 		
-		if (user.timeSheets[i].record[9].length < 1 && user.timeSheets[i].record[6].length < 1) {
+        // Probably internal
+		if (user.timeSheets[i].record[9].length < 1 && user.timeSheets[i].record[6].length < 1 && user.timeSheets[i].customTitle.length < 1) {
 			sheets[i].customTitle = user.timeSheets[i].record[14];
-
+            sheets[i].subtitle = user.timeSheets[i].record[13]
+            
 		} else if (user.timeSheets[i].customTitle.length < 1) {
 			sheets[i].customTitle = user.timeSheets[i].record[9];
 			sheets[i].subtitle = user.timeSheets[i].record[9].split(" - ")[0] + " - " + user.timeSheets[i].record[6] + " - " + user.timeSheets[i].record[9].split(" - ")[1];
@@ -58,6 +61,14 @@ exports.success = function (user) {
     user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
     user.res.header('Access-Control-Allow-Headers', 'Content-Type');
     user.res.json({ success: true});
+}
+
+exports.returnData = function (user) {
+	user.res.header('Access-Control-Allow-Origin', '*');
+    user.res.header('Access-Control-Allow-Methods', 'GET,PUT,POST');
+    user.res.header('Access-Control-Allow-Headers', 'Content-Type');
+    user.res.status(200)
+    user.res.json({ success: true, code: 200, data: user.data });
 }
 
 exports.searchJob = function (user) {

@@ -26,7 +26,6 @@ var login = function (user) {
 	    { form: { req: 'auth',  cid: '1', em: user.username, pw: user.password, rm: true} },
 	    function (error, response, body) {
 	    	var decoded = Ext.Ext.JSON.decode(body)
-
 	    	var success = decoded.success;
 
 	        if (!error && response.statusCode == 200 && success === true) {
@@ -44,6 +43,57 @@ var login = function (user) {
 			} else if (error) {
 	        	user.res.json({success: false, error: "An error 500"});
 	        }
+	    }
+	);
+
+	return deferred.promise;
+};
+
+var getJobTypes = function (user) {
+	var deferred = Q.defer();
+
+	request.post(
+	    config.chase_url + '/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
+	    { 
+	    	form: { 
+	    		req: 'load_for_job' 
+	    	},
+	    	headers: {
+	    		Cookie: user.cookies
+	    	},
+	    	timeout: 20000
+	    },
+	    function (error, response, body) {
+
+	    	if (error && error.code === "ETIMEDOUT") {
+	    		user.rejected = 408;
+	    		deferred.reject(user);
+
+	    	} else if (response.statusCode === 302) {
+	    		user.rejected = 302;
+	    		deferred.reject(user);
+
+	    	} else {
+
+		    	var decoded = Ext.Ext.JSON.decode(body);
+		    	var success = decoded.success;
+
+		        if (!error && response.statusCode == 200 && success === true) {
+		        	user.data = decoded.taskList;
+
+		            deferred.resolve(user);
+
+		        //Handle errors
+		        } else if (!error && response.statusCode == 200 && success === false) {
+		        	user.res.json({success: false, error: "Couldn't login with those details"});
+
+		        } else if (!error && !response.statusCode == 200) {
+		        	user.res.json({success: false, error: "Couldn't connect to Chase server"});
+
+				} else if (error) {
+		        	user.res.json({success: false, error: "An error 500"});
+		        }
+		    }
 	    }
 	);
 
@@ -68,10 +118,6 @@ var getTimesheets = function (user) {
 	    function (error, response, body) {
 	    	if (error && error.code === "ETIMEDOUT") {
 	    		user.rejected = 408;
-	    		deferred.reject(user);
-
-	    	} else if (response.statusCode === 302) {
-	    		user.rejected = 302;
 	    		deferred.reject(user);
 
 	    	} else if (response.statusCode === 302) {
@@ -180,7 +226,13 @@ var searchJobNumber = function (user) {
 
 	    	} else {
 		    	var decoded = Ext.Ext.JSON.decode(body);
-		    	user.results = decoded.dataForQuickSearch[0][1];
+
+		    	if (decoded.dataForQuickSearch.length > 0) {
+		    		user.results = decoded.dataForQuickSearch[0][1];
+		    	} else {
+		    		user.results = "";
+		    	}
+		    	
 
 		        if (!error && response.statusCode == 200 && decoded.success === true) {
 					deferred.resolve(user);
@@ -265,16 +317,15 @@ var grabJob = function (user) {
 var saveNewLine = function (user) {
 	var deferred = Q.defer();
 
+	var body = "req=save_line_item&currentDate=" + encodeURIComponent(functions.formatDate(new Date())) + "&timeSheetRecord=" + encodeURIComponent(JSON.stringify(user.newLineItem));
+
 	request.post(
 	    config.chase_url + '/ChaseMachine/ExtJs/Ajax/Tools/TimeSheets.ashx',
 	    { 
-	    	form: { 
-	    		req: 'save_line_item',
-	    		currentDate: functions.formatDate(new Date()),
-
-	    	}, 
+	    	body: body,
 	    	headers: {
-	    		Cookie: user.cookies
+	    		Cookie: user.cookies,
+	    		"Content-Type": "application/x-www-form-urlencoded"
 	    	}
 	    },
 	    function (error, response, body) {
@@ -289,6 +340,7 @@ var saveNewLine = function (user) {
 	    	} else {
 		    	var decoded = Ext.Ext.JSON.decode(body);
 		    	user.results = decoded.dataForQuickSearch;
+		    	user.job.chaseId = decoded.newtimesheetitemid;
 
 		        if (!error && response.statusCode == 200 && decoded.success === true) {
 					deferred.resolve(user);
@@ -326,7 +378,9 @@ module.exports = {
   getTimesheets: getTimesheets,
   saveAllTimesheets: saveAllTimesheets,
   searchJobNumber: searchJobNumber,
-  grabJob: grabJob
+  grabJob: grabJob,
+  getJobTypes: getJobTypes,
+  saveNewLine: saveNewLine
 }
 
 

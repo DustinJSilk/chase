@@ -291,11 +291,11 @@ var setupUpdateObject = function (sheet) {
 var createNewLineItem = function (user) {
 	var newJob = {  
 		timesheetitemid: 		null,
-		jobid: 					6960,
-		customerid: 			32,
-		productid: 				727,
+		jobid: 					parseInt(user.job.linkedJob.jobid),
+		customerid: 			parseInt(user.job.linkedJob.customerid),
+		productid: 				parseInt(user.job.linkedJob.productid),
 		taskid: 				null,
-		tasktypeid: 			110,
+		tasktypeid: 			parseInt(user.job.linkedJob.tasktypeid),
 		day1Time: 				0,
 		day2Time: 				0,
 		day3Time: 				0,
@@ -303,8 +303,12 @@ var createNewLineItem = function (user) {
 		day5Time: 				0,
 		day6Time: 				0,
 		day7Time: 				0,
-		notes: 					"test"
+		notes: 					user.job.linkedJob.notes
 	}
+
+	user.newLineItem = newJob;
+
+	return user;
 
 }
 
@@ -323,7 +327,8 @@ module.exports = {
 	addAppTime: 			addAppTime,
 	jsonToURI: 				jsonToURI,
 	checkUnsavedTimesheets: checkUnsavedTimesheets,
-	formatDate: 			formatDate
+	formatDate: 			formatDate,
+	createNewLineItem: 		createNewLineItem
 }
 
 

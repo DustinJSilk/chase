@@ -66,8 +66,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		initEvents: function () {
 			var that = this;
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
-			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+			var bindTypeEnd = (App.os === "mac" || App.os === "mobile") ? "mouseup" : "touchend";
+			var bindTypeStart = (App.os === "mac" || App.os === "mobile") ? "mousedown" : "touchstart";
 
 			//Swip out actions
 			var isSwipe = false;
@@ -135,6 +135,14 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
             		
             	})
             }
+
+            //disable swipe out on slide
+            $(".timesheet-item input").on(bindTypeStart, function (){
+            	$(this).closest("li").removeClass("swipeout");
+            })
+            $(".timesheet-item input").on(bindTypeEnd, function (){
+            	$(this).closest("li").addClass("swipeout");
+            })
 
 		},
 
@@ -379,10 +387,10 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		},
 
 		getSliderData: function (target, model) {
+
 			if (target === null || model === null) return;
 			var formData = App.Framework7.formToJSON('#form-' + target);
 			var value = formData.slider;
-  			
   			model.set("todaysTime", parseInt(value));
 		},
 

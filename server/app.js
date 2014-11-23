@@ -24,11 +24,82 @@ app.use('/login', function(req, res) {
 
 	var promise = chaseProxy.login(user)
 		.then(function (data){
+			console.log("inserting")
 			return database.insertDetails(data);
 		})
 		.then(function (data){
+			console.log("checking")
+			return database.checkUserType(data);
+		})
+		.then(function (data){
+			console.log("responding")
 			return clientResponser.login(data)
 		})
+});
+
+
+/* getjobtypes - id */
+app.use('/getjobtypes', function(req, res) {
+	var user = {req: req, res: res};
+
+	user.id = req.body.id;
+
+	if (user.id === undefined || user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	var promise = (function getJobTypes () {
+		return database.getUserCookies(user)
+		.then(function (data){
+			return chaseProxy.getJobTypes(data)
+		})
+			.fail(function (data) {
+				if (data.rejected === 302) {
+					var relogin = database.fetchAuth(data)
+						.then(function (data) {
+							return chaseProxy.login(data)
+						})
+						.then(function (data){
+		            		return database.insertDetails(data);
+						})
+						.then(function (data){
+							return promise.call();
+						}).end();
+				} else if (data.rejected === 408) {
+					var timeout = clientResponder.timeout(data).end();
+					return;
+				}
+			})
+		.then(function (data){
+			return clientResponser.returnData(data)
+		})
+	});
+
+	promise.call();
+});
+
+
+
+app.use('/setjobtype', function(req, res) {
+	var user = {req: req, res: res};
+
+	user.id = req.body.id;
+	user.userTypeId = req.body.userTypeId;
+
+	if (user.id === undefined || user.id.length !== 24) {
+		clientResponser.relogin(user);
+		return;
+	}
+
+	var promise = (function setJobType () {
+		return database.setJobType(user)
+		.then(function (data){
+			return clientResponser.success(data)
+		})
+	});
+
+	promise.call();
 });
 
 
@@ -39,7 +110,7 @@ app.use('/timesheets', function(req, res) {
 	var user = {req: req, res: res};
 	user.id = req.body.id;
 
-	if (user.id.length !== 24) {
+	if (user.id === undefined || user.id.length !== 24) {
 		clientResponser.relogin(user);
 		return;
 	}
@@ -266,20 +337,26 @@ app.use('/addnew', function(req, res) {
 		colour: 			req.body.colour,
 		isAnonymous: 		Boolean(parseInt(req.body.isAnonymous)),
 		linkedJob: 			{
-			jobid: 				req.body.job.jobid,
-			customerid: 		req.body.job.customerid,
-			productid: 			req.body.job.productid,
-			tasktypeid: 		req.body.job.tasktypeid,
-			notes: 				req.body.job.notes
+			jobid: 				req.body.linkedJob.jobid,
+			customerid: 		req.body.linkedJob.customerid,
+			productid: 			req.body.linkedJob.productid,
+			tasktypeid: 		null,
+			notes: 				req.body.linkedJob.notes 
 		}
 	}
 
 
 	// Otherwise add to chase and return. When navigating to index page it will automatically update local database
 	var promise = (function sequence () {
-		var promise = functions.createNewLineItem(user)
+			return database.getJobType(user)
+			.then(function (data) {
+				return functions.createNewLineItem(data);
+			})
 			.then(function (data) {
 				return chaseProxy.saveNewLine(data);
+			})
+			.then(function (data) {
+				return database.createNewJob(data);
 			})
 				.fail(function (data) {
 					if (data.rejected === 302) {
@@ -322,7 +399,7 @@ app.use('/addanonymous', function(req, res) {
 		customTitle: 		req.body.customTitle,
 		colour: 			req.body.colour,
 		isAnonymous: 		Boolean(parseInt(req.body.isAnonymous)),
-		linkedJob: 			linkedJob
+		//linkedJob: 			linkedJob
 	}
 
 	// If anonymour - create anonymous timesheet and end function

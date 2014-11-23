@@ -3,18 +3,24 @@ define(["app", "backbone"], function (App, Backbone) {
 	var TimesheetModel = Backbone.Model.extend({
 		
 		defaults: {
-			searchTerm: 		null,
 			customTitle: 		"",
 			colour: 			null,
 			isAnonymous: 		1,
-			searchResults: 		[]
+			searchResults: 		[],
+			jobName: 			null,
+            productid: 			null,
+            clientid: 			null,
+            jobid: 			 	null,
+            jobnumber: 			null,
+            notes: 				""
 		},
 
 		createNew: function () {
 			var that = this;
+			var path = (this.get("isAnonymous")) ? "addanonymous" : "addnew";
 
 			$.ajax({
-				url: App.urlRoot + "/createnew",
+				url: App.urlRoot + "/" + path,
 				type: "POST",
                 data: {
                 	id: App.userID, 
@@ -22,7 +28,11 @@ define(["app", "backbone"], function (App, Backbone) {
 					colour: that.get("colour"),
 					isAnonymous: that.get("isAnonymous"),
 					linkedJob: {
-						
+						jobid:              that.get("jobid"),
+                        customerid:         that.get("clientid"),
+                        productid:          that.get("productid"),
+                        tasktypeid:         110,//App.user.type,
+                        notes:              that.get("notes")
 					}
                 },
                 success: function (data) {
@@ -34,17 +44,25 @@ define(["app", "backbone"], function (App, Backbone) {
 			})
 		},
 
-		search: function () {
+		search: function (searchTerm) {
 			var that = this;
+            try {
+                that.searchAjax.abort();
+            } catch(e){}
 
-			$.ajax({
+			this.searchAjax = $.ajax({
 				url: App.urlRoot + "/search",
 				type: "POST",
                 data: {
                 	id: App.userID, 
-                	searchTerm: that.get("searchTerm")
+                	searchTerm: searchTerm
                 },
                 success: function (data) {
+                    if (data.results.length === 0) {
+                        that.set("searchResults", [])
+                        return;
+                    }
+
                 	try {
                 		// Convert string to array
                 		var array = data.results.match(/\[([^\]]+\])/g);
@@ -62,7 +80,7 @@ define(["app", "backbone"], function (App, Backbone) {
                 			array[n].push(arrayItem.substr(arrayItem.indexOf(',') + 1, arrayItem.length).replace(/\"/g, ""))
                 		}
 
-                		that.searchResults = array;
+                		that.set("searchResults", array)
 
                 	} catch (e) {
                 		App.Framework7.alert("Oh no! Something went wrong. We're working on getting this fixed.", 'Technical Error');

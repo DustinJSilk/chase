@@ -23,13 +23,13 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 			App.mainView.router.loadContent($("#add-new-template").html())
 
             $(".go-back").click(function(){
+            	$(".add-new .link-job").toggleClass("active");
             	App.mainView.back();
             	Backbone.history.navigate("#index", {trigger: true, replace: true});
             	that.remove();
             });
 
             $("#search-jobs").on("input", function () {
-            	console.log("change")
             	that.updateSearch();
             });
             $("#search-jobs").on("focus", function () {
@@ -42,17 +42,38 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 		initEvents: function () {
 			var that = this;
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
-			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+			var bindTypeEnd = (App.os === "mac" || App.os === "mobile") ? "mouseup" : "touchend";
+			var bindTypeStart = (App.os === "mac" || App.os === "mobile") ? "mousedown" : "touchstart";
 
 			$(".add-new a.finish").on(bindTypeEnd, function(e){
 				that.submit();
+			});
+
+			$(".add-new .link-job").on(bindTypeEnd, function (){
+				$(".search-wrapper").toggle();
+				$(".add-new .link-job").toggleClass("active");
+				var isAnonymous = (that.model.get("isAnonymous") === 1) ? 0 : 1;
+				that.model.set("isAnonymous", isAnonymous);
+			})
+
+			$(".search-wrapper a").on(bindTypeEnd, function (){
+				that.hideSearch();
+				$(".search-wrapper input").val("");
 			})
 		},
 
 		submit: function () {
-			this.model.set("customTitle", $("#custom-title").val());
+			if (this.model.get("isAnonymous") === 0 && this.model.get("jobid") === null) {
+				App.Framework7.alert("Please add a job to this task.", "You're not finised yet!");
+				return;
+			}
 
+			if ($("#custom-title").val() === null || $("#custom-title").val().length === 0 ) {
+				App.Framework7.alert("You need to give this job a name.", "You're not finised yet!");
+				return;
+			}
+
+			this.model.set("customTitle", $("#custom-title").val());
 			this.model.createNew();
 		},
 
@@ -61,18 +82,21 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 
 			clearTimeout($.data(this, 'searchTimer'));
 		    $.data(this, 'searchTimer', setTimeout(function() {
-		        that.model.set("searchTerm", $("#search-jobs").val());
-				that.model.search();
-		    }, 600));
+				that.model.search($("#search-jobs").val());
+		    }, 400));
 		},
 
 		focusSearch: function () {
 			var top = $(".search-wrapper").offset().top;
 
+			$(".search-wrapper input").val("");
+
 			//set page content
 			$(".page-content").css({
 				"z-index": "600",
 				"position": "relative"
+			}).find(".view").css({
+				"position": "static"
 			});
 
 			//set search wrapper
@@ -89,33 +113,77 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 				"top": 0
 			}, 500, "easeOutQuad");
 
+			setTimeout(function(){
+				$(".search-wrapper a").css({"opacity": 1});
+			}, 300)
+
 			$(".background").animate({"opacity": 1}, 600)
+
+			
 
             this.listenTo(this.model, 'change', this.addSearchResults);
 
 		},
 
-		selectSearch: function () {
-			
+		selectSearch: function (e) {
+			var that = this;
 			this.stopListening(this.model);
+			$.ajax({
+				url: App.urlRoot + "/grabjob",
+				type: "POST",
+                data: {
+                	id: App.userID, 
+                	jobNumber: parseInt(e.attr("data-jobnumber"))
+                },
+                success: function (data) {
+                	that.model.set("jobName", data.results.jobName);
+                	that.model.set("productid", data.results.productid);
+                	that.model.set("clientid", data.results.clientid);
+                	that.model.set("jobid", e.attr("data-jobid"));
+                	that.model.set("jobnumber", e.attr("data-jobnumber"));
 
-			$(".page-content").css({
-				"z-index": "600",
-				"position": "relative"
-			});
-			
-			$(".search-wrapper").css({
-				"position": 	"fixed",
-				"width": 		"100%",
-				"top": 			$(".search-wrapper").offset().top
-			}).animate({
-				"top": 0
-			}, 600);
+                	$("#search-jobs").val(data.results.jobName);
+
+                	that.hideSearch();
+                }
+            });
 
 		},
 
 		addSearchResults: function () {
-			console.log("adding")
+			var that = this;
+
+			var items = this.model.get("searchResults");
+
+			$(".search-results").html("")
+			for (var i = 0; i < items.length; i ++) {
+				$(".search-results").append("<li data-jobid='" + items[i][0] + "' data-jobnumber='" + items[i][1].match(/\d+(\d+|\w+)/) + "'>" + items[i][1] + "</li>")
+			}
+
+			var bindTypeEnd = (App.os === "mac" || App.os === "mobile") ? "mouseup" : "touchend";
+			$(".search-results li").on(bindTypeEnd, function () {
+				that.selectSearch($(this));
+			})
+		},
+
+		hideSearch: function () {
+
+			$(".search-wrapper a").css({"opacity": ""});
+
+			$(".page-content").css({
+				"z-index": "",
+				"position": ""
+			}).find(".view").css({
+				"position": "relative"
+			});;
+			
+			$(".search-wrapper").css({
+				"position": 	"relative",
+				"top": 			0,
+				"height": 		"auto"
+			});
+			$(".search-results").remove();
+
 		}
 	});
 

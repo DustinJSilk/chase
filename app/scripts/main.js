@@ -26,13 +26,13 @@ require.config({
 
 require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
 
-    App.urlRoot = "http://dev.apollo:7501";
-    App.os = "mac";
+    App.urlRoot = "http://10.0.0.7:7501";
+    App.os = "mobile";
     // App.os = "windows";
     // App.os = "ios";
     // App.os = "android";
 
-    //$('html').addClass(App.os)
+    $('html').addClass(App.os)
 
     App.Framework7 = new Framework7({
         dynamicNavbar: true,
@@ -42,7 +42,8 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     App.$$ = Dom7;
     App.mainView = App.Framework7.addView('.view-main');
 
-    if (localStorage.userID === null && localStorage.userID === undefined && localStorage.userID.length > 0) {
+
+    if (localStorage.getItem("userID") === null) {
         App.login.show(new LoginView());
         App.Framework7.loginScreen();
     } else {

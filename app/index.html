@@ -3,7 +3,8 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	
 	<title>Time Tracker</title>
 	<meta name="description" content="Chase Software plugin app">
 	<meta name="author" content="Dustin J Silk - Publicis Machine">
@@ -13,6 +14,7 @@
 	<link rel="stylesheet" href="css/framework7.css">
 	<link rel="stylesheet" href="css/main.css">
 	
+	<script src="phonegap.js"></script>
 	<script src="scripts/lib/framework7.js"></script>
 	<script data-main="scripts/main" src="scripts/lib/require.js"></script>
 	
@@ -23,7 +25,7 @@
 <body>
 	<div class="panel-overlay"></div>
 
-    <div class="panel panel-left panel-reveal">
+    <div class="panel panel-left panel-cover">
 		<ul>
 			<li><a href="#save-all">Save all timesheets</a></li>
 			<li><a>Add new timesheet</a></li>
@@ -96,7 +98,7 @@
 			        </div>
 			        <div class="right">
 			        	<a class="link-job"></a>
-			        	<a class="colourize"></a>
+			        	<!-- <a class="colourize"></a> -->
 			            <a class="finish"></a>
 			        </div>
 				</div>

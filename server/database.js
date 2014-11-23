@@ -58,6 +58,7 @@ var createUser = function (user, deferred) {
 	users.insert({
 		username: user.req.body.em,
 		password: user.req.body.pw,
+		userType: null,
 		cookies: user.cookies,
 		currentDay: new Date().getDay(),
 		currentDate: new Date().getDate(),
@@ -68,6 +69,62 @@ var createUser = function (user, deferred) {
 		deferred.resolve(user);
 	});
 };
+
+
+var checkUserType = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id)
+
+	users.find({'_id': id}).toArray(function(err, data) {
+		if (data.length < 1) {
+			deferred.reject(user);
+			return;
+		}
+		user.userType = data[0].userType;
+		deferred.resolve(user);
+	});
+
+	return deferred.promise;
+}
+
+var setJobType = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectID = mongo.ObjectID;
+	var userId = ObjectID.createFromHexString(user.id);
+	
+	users.update({ _id: userId }, {
+		$set: {userType: user.userTypeId}
+
+	}, function (err, results) {
+		deferred.resolve(user);
+	});
+
+	return deferred.promise;
+};
+
+
+var getJobType = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id)
+	
+	users.find({'_id': id}).toArray(function(err, data) {
+		if (data.length < 1) {
+			deferred.reject(user);
+			return;
+		}
+		user.job.linkedJob.tasktypeid = data[0].userType;
+
+		deferred.resolve(user);
+	});
+
+	return deferred.promise;
+};
+
 
 
 var getUserCookies = function (user) {
@@ -334,6 +391,7 @@ var createNewJob = function (user) {
 	}
 
 	var timeSheetId = new ObjectId();
+	var chaseId = user.job.chaseId || "";
 
 	users.update({ '_id': id }, {
 		$push: {
@@ -343,7 +401,7 @@ var createNewJob = function (user) {
 				colour: 		user.job.colour,
 				isAnonymous: 	user.job.isAnonymous,
 				appTime: 		0,
-				chaseId: 		"",
+				chaseId: 		chaseId,
 				isHidden: 		false,
 				isTiming: 		false,
 				timingStamp: 	0,
@@ -375,5 +433,8 @@ module.exports = {
   getAllTimesheets: 		getAllTimesheets,
   toggleHide: 				toggleHide,
   updateCurrentDates: 		updateCurrentDates,
-  createNewJob: 				createNewJob
+  createNewJob: 			createNewJob,
+  checkUserType: 			checkUserType,
+  setJobType: 				setJobType,
+  getJobType: 				getJobType
 }

@@ -1,7 +1,6 @@
 define(["app"], function (App) {
     var controller = {
         index: function () {
-
             $(".timesheets-loader").addClass("show");
 
             require([ "app", "views/index", "collections/timesheets", "views/login" ], function (App, IndexView, TimesheetsCollection, LoginView) {

@@ -25,7 +25,7 @@ define(["app", "backbone"], function (App, Backbone) {
 		    clearTimeout($.data(that, 'modelTimer'));
 		    $.data(that, 'modelTimer', setTimeout(function() {
 		    	that.sendUpdate();
-		    }, 2000));
+		    }, 1000));
 
 		},
 
