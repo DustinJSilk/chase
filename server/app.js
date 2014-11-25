@@ -148,7 +148,7 @@ app.use('/timesheets', function(req, res) {
 		})
 		.then(function (data) {
 			// Return timesheets
-			clientResponser.timeSheets(user);
+			clientResponser.timeSheets(data);
 		});
 	});
 
@@ -468,6 +468,27 @@ app.use('/togglehide', function(req, res) {
 		.then(function (data){
 			return clientResponser.success(data);
 		})
+});
+
+
+
+/* GET timesheets - id: _id */
+app.use('/starttiming', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+
+	user.jobID = req.body.jobID;
+	user.timingStamp = req.body.timingStamp;
+	user.maxTiming = req.body.maxTiming;
+
+	var promise = (function startTiming () {
+			return database.startTiming(user)
+		.then(function (data) {
+			clientResponser.success(data);
+		});
+	});
+
+	promise.call();
 });
 
 

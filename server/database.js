@@ -420,6 +420,73 @@ var createNewJob = function (user) {
 }
 
 
+var startTiming = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
+				data[0].timeSheets[i].timingStamp = user.timingStamp;
+				data[0].timeSheets[i].maxTiming = user.maxTiming;
+				data[0].timeSheets[i].isTiming = true;
+			}
+		}
+
+		users.update({ '_id': id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+
+
+var stopTiming = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
+
+				//Stop timing
+				data[0].timeSheets[i].timingStamp = 0;
+				data[0].timeSheets[i].maxTiming = 0;
+				data[0].timeSheets[i].isTiming = false;
+			}
+		}
+
+		users.update({ '_id': id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+
 module.exports = {
   createUser: 				createUser,
   updateUserCookies: 		updateUserCookies,
@@ -436,5 +503,7 @@ module.exports = {
   createNewJob: 			createNewJob,
   checkUserType: 			checkUserType,
   setJobType: 				setJobType,
-  getJobType: 				getJobType
+  getJobType: 				getJobType,
+  startTiming: 				startTiming,
+  stopTiming: 				stopTiming
 }

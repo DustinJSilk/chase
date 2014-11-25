@@ -43,7 +43,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			that.listenTo(that.collection, 'change', that.updateTimeVisual);
 
 			//Set total time
-			$(".total-time").text(this.getTotalTime().replace(":", "H ") + "M");
+			$(".total-time").text(this.getTotalTime());
 
 			App.mainView.router.load({
                 pageName: "index"
@@ -85,6 +85,11 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			$(".swipe-complete").on("click", function (e) {
 				var target = $(e.target).closest("li");
 				that.completeJob(target);
+			});
+
+			$(".swipe-timer").on("click", function (e) {
+				var target = $(e.target).closest("li");
+				that.swipeTimer(target);
 			});
 
 			//Open / close job options
@@ -158,7 +163,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
                     that.collection.reset(data.timeSheets.sheets);
                     that.render();
                     App.Framework7.pullToRefreshDone();
-                    $(".total-time").text(that.getTotalTime().replace(":", "H ") + "M");
+                    $(".total-time").text(that.getTotalTime());
                     that.initEvents();
                 },
                 error: function (err, xhr, o) {
@@ -317,6 +322,13 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		toggleJobOptions: function (el) {			
 			var slider = el.parent().find(".timer-slider");
 			slider.slideToggle();
+			slider.toggleClass("isOpen");
+
+			if (slider.hasClass("isOpen")) {
+				slider.closest("li").removeClass("swipeout");
+			} else {
+				slider.closest("li").addClass("swipeout");
+			}
 		},
 
 		startTiming: function (el) {
@@ -378,10 +390,12 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			$(".timer-slider input").on("mouseup touchend", function () {
 				target = null;
 				model = null;
+				$(".total-time").text(that.getTotalTime());
 			});
 
 			$(".timer-slider input").on("mousemove touchmove", function () {
 				that.getSliderData(target, model);
+				$(".total-time").text(that.getTotalTime());
 			});
 
 		},
@@ -396,10 +410,6 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 
 
 
-
-		//
-		//	If a model changes using the slider - update the time and master time
-		//
 		updateTimeVisual: function (e) {
 			var that = this;
 			var time = e.get("todaysTime");
@@ -408,8 +418,103 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		},
 
 
+		swipeTimer: function (target) {
+			if ($(".is-timing").length > 0 && this.getId(target) !== this.getId($(".is-timing").eq(0)) ) {
+				App.Framework7.swipeoutClose(target);
+				App.Framework7.alert("Slow down there, one job at a time.", "You're already timing");
+				return;
+			} 
+
+			if (this.getId(target) === this.getId($(".is-timing").eq(0))) {
+				this.stopTiming(target);
+				App.Framework7.swipeoutClose(target);
+			} else {
+				var buttons1 = [
+				    {
+			            text: 'Max time',
+			            label: true
+			        },
+			        {
+			            text: 'Forever',
+			            //color: 'red',
+			            onClick: function () {
+			                this.startTiming(target, 1440);
+			            }
+			        },
+			        {
+			            text: '8 Hours',
+			            //color: 'yellow',
+			            onClick: function () {
+			                that.changeColour(target, 480)
+			            }
+			        },
+			        {
+			            text: '4 Hours',
+			            //color: 'blue',
+			            onClick: function () {
+			                that.changeColour(target, 240)
+			            }
+			        },
+			        {
+			            text: '2 Hours',
+			            //color: 'blue',
+			            onClick: function () {
+			                that.changeColour(target, 120)
+			            }
+			        },
+			        {
+			            text: '1 Hour',
+			            //color: 'blue',
+			            onClick: function () {
+			                that.changeColour(target, 60)
+			            }
+			        },
+			        {
+			            text: '30 Minutes',
+			            //color: 'blue',
+			            onClick: function () {
+			                that.changeColour(target, 30)
+			            }
+			        }
+			    ];
+
+			    var buttons2 = [
+			        {
+			            text: 'Cancel',
+			            onClick: function () {
+			            }
+			        }
+			    ]
+			    var groups = [buttons1, buttons2];
+			    App.Framework7.actions(groups);
+				App.Framework7.swipeoutClose(target);
+			}
+
+			
+		},
 
 
+		startTiming: function (target, max) {
+			var that = this;
+			var id = this.getId(target);
+
+			that.collection.get(id).set("isTiming", true);
+			that.collection.get(id).set("maxTiming", max);
+			that.collection.get(id).set("timingStamp", new Date().getTime());
+
+			that.collection.get(id).startTiming();
+
+			target.find("swipeout-actions-left").removeClass("swipeout-actions-left").addClass("swipeout-actions-left-disabled");
+
+			target.addClass("is-timing");
+		},
+
+
+
+		stopTiming: function (target) {
+			var id = this.getId(target);
+			that.collection.get(id).startTiming();
+		}
 
 
 

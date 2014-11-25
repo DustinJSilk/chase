@@ -83,6 +83,7 @@ var createNewRecord = function (data, currentDay) {
 		isAnonymous: 		false,
 		isTiming: 			false,
 		timingStamp: 		0,
+		maxTiming: 			0,
 		chaseTime:  		parseTime(getDaysRecord(data, currentDay)), //Record from chase server. Used to check if chase data ever changes
 		appTime:  			0, // extra time added through app
 		record: 			data

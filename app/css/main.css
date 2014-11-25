@@ -239,7 +239,7 @@
 
 .navbar-inner, .toolbar-inner {
 	height: 63px;
-	background-color: #000;
+	background-color: #00b5ef;
 	color: #fff;
 }
 
@@ -300,6 +300,24 @@
 }
 
 /* Index */
+.navbar .center {
+	display: inline-block;
+	height: 70px;
+}
+
+.navbar .center span {
+	display: block;
+	height: 21px;
+	font-family: 'opensans-light';
+	font-size: 14px;
+	letter-spacing: 1px;
+}
+
+.navbar .center .total-time {
+	font-family: 'opensans-light';
+	font-size: 22px;
+	letter-spacing: 1px;
+}
 
 .timesheets-list li {
 	list-style: none;
@@ -408,7 +426,7 @@
 }
 
 .item-title {
-	font-size: 22px;
+	font-size: 18px;
 	font-family: 'opensans-regular';
 	letter-spacing: 0.4px;
 }
@@ -416,7 +434,7 @@
 .list-block .item-subtitle {
 	font-family: 'opensans-light';
 	letter-spacing: 0.4px;
-	font-size: 14px;
+	font-size: 13px;
 	color: #888888;
 	letter-spacing: 0.9px;
 }
@@ -505,7 +523,9 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-
+.swipeout-actions-left-disabled {
+	display: none;
+}
 
 
 
@@ -576,11 +596,11 @@
 
 .add-new .navbar a.active:before,
 .add-new .navbar a:hover:before {
-	color: #00b5ef;
+	color: #f0e936;
 }
 
 .add-new .navbar a.active:before {
-	color: #00b5ef;
+	color: #f0e936;
 }
 
 .add-new .navbar a.cancel:hover:before {

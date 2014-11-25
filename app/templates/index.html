@@ -8,8 +8,11 @@
 				if ( data.sheets[i].get("isHidden") ) {
 					isComplete = "complete";
 				}
+				if ( data.sheets[i].get("isTiming") ) { 
+					var isTiming = "is-timing";
+				} 
 			%>
-			<li class="swipeout timesheet-item <%= data.sheets[i].get("colour") %> <%= isComplete %>" id="<%= data.sheets[i].get("_id") %>">
+			<li class="swipeout timesheet-item <%= data.sheets[i].get("colour") %> <%= isComplete %> <%= isTiming %>" id="<%= data.sheets[i].get("_id") %>">
 				<div class="swipeout-content">
 					<a id="#job/<%= data.sheets[i].get("_id") %>" class="item-link item-content">
 		                <div class="item-inner">
@@ -38,13 +41,20 @@
 						</div> 
 					</div>
 		        </div>
-
-				<div class="mobile swipeout-actions-left">
+				
+				<% 
+					var cls = "swipeout-actions-left";
+					if ( data.sheets[i].get("isTiming") ) { 
+						var cls = "swipeout-actions-left-disabled";
+					} 
+				%>
+				<div class="mobile <%= cls %>">
 					<a class="swipe-complete swipeout-overswipe"></a>
 				</div>
+				
 
 				<div class="mobile swipeout-actions-right">
-					<a class="swipe-timer"></a>
+					<a class="swipe-timer swipeout-overswipe"></a>
 				</div>
 
 			</li>
