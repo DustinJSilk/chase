@@ -21,6 +21,7 @@ exports.timeSheets = function (user) {
 	var sheets = [];
 
 	for (var i = 0; i < user.timeSheets.length; i ++) {
+
 		sheets[i] = {
 			_id: 				user.timeSheets[i].id,
 			customTitle: 		user.timeSheets[i].customTitle,
@@ -33,7 +34,7 @@ exports.timeSheets = function (user) {
 			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime)
 		}
 
-		if (sheets[i].isAnonymous === 1) {
+		if (sheets[i].isAnonymous === 1 || sheets[i].isAnonymous === true) {
             sheets[i].subtitle = user.timeSheets[i].record[13]
 			continue;
 		}

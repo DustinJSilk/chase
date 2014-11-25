@@ -464,10 +464,15 @@ var stopTiming = function (user) {
 		for (var i = 0; i < data[0].timeSheets.length; i ++) {
 			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
 
+				// Set new app time on front end to hide perception of delay
+				appTime = parseInt(data[0].timeSheets[i].appTime) + parseInt(user.addedTime);
+				data[0].timeSheets[i].appTime = appTime;
+				
 				//Stop timing
 				data[0].timeSheets[i].timingStamp = 0;
 				data[0].timeSheets[i].maxTiming = 0;
 				data[0].timeSheets[i].isTiming = false;
+				
 			}
 		}
 

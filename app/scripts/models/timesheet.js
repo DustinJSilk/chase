@@ -17,7 +17,16 @@ define(["app", "backbone"], function (App, Backbone) {
 		},
 
 		initialize: function () {
-			this.listenTo(this, 'change', this.updateTime);
+			var that = this;
+
+			if (this.get("isTiming")) {
+				var difference = new Date().getTime() - parseInt(that.get("timingStamp"));
+				var addedTime = Math.round(difference / 1000 / 60);
+
+				this.set("todaysTime", this.get("todaysTime") + addedTime)
+			}
+			
+			//this.listenTo(this, 'change', this.updateTime);
 		},
 
 		updateTime: function () {
@@ -36,7 +45,11 @@ define(["app", "backbone"], function (App, Backbone) {
 			$.ajax({
 				url: App.urlRoot + "/updatesingle",
 				type: "POST",
-                data: {id: App.userID, job: that.id, todaysTime: that.get("todaysTime")},
+                data: {
+                	id: App.userID, 
+                	job: that.id, 
+                	todaysTime: that.get("todaysTime")
+                },
                 success: function (data) {
                     console.log(data)
                 },
@@ -58,6 +71,30 @@ define(["app", "backbone"], function (App, Backbone) {
                 	jobID: that.id, 
                 	timingStamp: that.get("timingStamp"),
                 	maxTiming: that.get("maxTiming")
+                },
+                success: function (data) {
+                    console.log(data)
+                },
+                error: function (err, xhr, o) {
+                    console.log(err, xhr, o)
+                }
+			})
+		},
+
+		stopTiming: function () {
+			var that = this;
+
+			var difference = new Date().getTime() - parseInt(that.get("timingStamp"));
+			var addedTime = Math.round(difference / 1000 / 60);
+
+
+			$.ajax({
+				url: App.urlRoot + "/stoptiming",
+				type: "POST",
+                data: {
+                	id: App.userID, 
+                	jobID: that.id,
+                	addedTime: addedTime,
                 },
                 success: function (data) {
                     console.log(data)

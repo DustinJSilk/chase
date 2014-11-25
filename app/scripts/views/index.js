@@ -58,10 +58,16 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
                 }, 600)
             }
 
+            //Start timing if any jobs are tracking time
+            if ($(".is-timing").length > 0) {
+            	var target = $(".is-timing").eq(0);
+            	this.timingInterval(target);
+            	target.find(".swipeout-actions-left").addClass("swipeout-actions-left-disabled").removeClass("swipeout-actions-left");
+            }
+
             this.initEvents();
 
 		},
-
 
 		initEvents: function () {
 			var that = this;
@@ -141,6 +147,11 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
             	})
             }
 
+            $(".clock").click(function () {
+            	var target = $(this).closest("li")
+            	that.stopTiming(target)
+            })
+
             //disable swipe out on slide
             $(".timesheet-item input").on(bindTypeStart, function (){
             	$(this).closest("li").removeClass("swipeout");
@@ -150,7 +161,6 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
             })
 
 		},
-
 
 		refresh: function () {
 			var that = this;
@@ -176,14 +186,27 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
             });
 		},
 
-		getTotalTime: function () {
-			var total = 0;
 
-			for (var i = 0; i < this.collection.models.length; i ++) {
-				total += parseInt(this.collection.models[i].get("todaysTime"));
+		///////////////////////////////////////
+		////	Single job functions
+		///////////////////////////////////////
+		toggleJobOptions: function (el) {			
+			var slider = el.parent().find(".timer-slider");
+			slider.slideToggle();
+			slider.toggleClass("isOpen");
+
+			if (slider.hasClass("isOpen")) {
+				slider.closest("li").removeClass("swipeout");
+			} else {
+				slider.closest("li").addClass("swipeout");
 			}
+		},
 
-			return this.unparseTime(total);
+		//Get job ID from any li child
+		getId: function (el) {
+			if (!(el instanceof jQuery)) el = $(el);
+			var id = el.closest("li").attr("data-for") || el.closest("li").attr("id");
+			return id;
 		},
 
 		initColourChangeEvents: function () {
@@ -275,6 +298,11 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		completeJob: function (target) {
 			var job = this.getId(target);
 
+			if (target.hasClass("is-timing")) {
+				App.Framework7.alert("Stop timing if you want to complete this task.", "You're still timing");
+				return;
+			} 
+
 			$.ajax({
 				url: App.urlRoot + "/togglehide",
 				type: "POST",
@@ -296,13 +324,23 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
                     }
 				}
 			});
-
 		},
 
 
-		//
+		///////////////////////////////////////
+		////	Timing Visuals
+		///////////////////////////////////////
+		getTotalTime: function () {
+			var total = 0;
+
+			for (var i = 0; i < this.collection.models.length; i ++) {
+				total += parseInt(this.collection.models[i].get("todaysTime"));
+			}
+
+			return this.unparseTime(total);
+		},
+
 		// Minutes -> 00:00
-		//
 		unparseTime: function (time, addSpan) {
 			var hours = ( Math.floor(time / 60) === 0 ) ? "0" : Math.floor(time / 60);
 			var minutes = ( time % 60 < 10 ) ? "0" + (time % 60) : (time % 60);
@@ -318,40 +356,18 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			return str;
 		},
 
-
-		toggleJobOptions: function (el) {			
-			var slider = el.parent().find(".timer-slider");
-			slider.slideToggle();
-			slider.toggleClass("isOpen");
-
-			if (slider.hasClass("isOpen")) {
-				slider.closest("li").removeClass("swipeout");
-			} else {
-				slider.closest("li").addClass("swipeout");
-			}
-		},
-
-		startTiming: function (el) {
-			
-		},
-
-
-
-		//Get job ID from any li child
-		getId: function (el) {
-			if (!(el instanceof jQuery)) el = $(el);
-			var id = el.closest("li").attr("data-for") || el.closest("li").attr("id");
-			return id;
+		updateTimeVisual: function (e) {
+			var that = this;
+			var time = e.get("todaysTime");
+			var parsed = that.unparseTime(time);
+			var target = $("#" + e.id).find(".job-timer .time").text(parsed);
 		},
 
 
 
 		///////////////////////////////////////
-		////
 		////	SLIDERS
-		////
 		///////////////////////////////////////
-
 		createSliders: function () {
 			var that = this;
 
@@ -397,28 +413,32 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 				that.getSliderData(target, model);
 				$(".total-time").text(that.getTotalTime());
 			});
-
 		},
 
 		getSliderData: function (target, model) {
+			var that = this;
 
 			if (target === null || model === null) return;
 			var formData = App.Framework7.formToJSON('#form-' + target);
 			var value = formData.slider;
   			model.set("todaysTime", parseInt(value));
+
+  			//Update
+  			clearTimeout($.data(that, 'modelTimer'));
+		    $.data(that, 'modelTimer', setTimeout(function() {
+		    	model.sendUpdate();
+		    }, 1000));
 		},
 
 
+		///////////////////////////////////////
+		////	Timer
+		///////////////////////////////////////
 
-		updateTimeVisual: function (e) {
-			var that = this;
-			var time = e.get("todaysTime");
-			var parsed = that.unparseTime(time);
-			var target = $("#" + e.id).find(".job-timer .time").text(parsed);
-		},
-
-
+		//Decides to either start or stop timing
 		swipeTimer: function (target) {
+			var that = this;
+
 			if ($(".is-timing").length > 0 && this.getId(target) !== this.getId($(".is-timing").eq(0)) ) {
 				App.Framework7.swipeoutClose(target);
 				App.Framework7.alert("Slow down there, one job at a time.", "You're already timing");
@@ -426,8 +446,9 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			} 
 
 			if (this.getId(target) === this.getId($(".is-timing").eq(0))) {
-				this.stopTiming(target);
 				App.Framework7.swipeoutClose(target);
+				that.stopTiming(target);
+				
 			} else {
 				var buttons1 = [
 				    {
@@ -438,42 +459,42 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			            text: 'Forever',
 			            //color: 'red',
 			            onClick: function () {
-			                this.startTiming(target, 1440);
+			                that.startTiming(target, 1440);
 			            }
 			        },
 			        {
 			            text: '8 Hours',
 			            //color: 'yellow',
 			            onClick: function () {
-			                that.changeColour(target, 480)
+			                that.startTiming(target, 480)
 			            }
 			        },
 			        {
 			            text: '4 Hours',
 			            //color: 'blue',
 			            onClick: function () {
-			                that.changeColour(target, 240)
+			                that.startTiming(target, 240)
 			            }
 			        },
 			        {
 			            text: '2 Hours',
 			            //color: 'blue',
 			            onClick: function () {
-			                that.changeColour(target, 120)
+			                that.startTiming(target, 120)
 			            }
 			        },
 			        {
 			            text: '1 Hour',
 			            //color: 'blue',
 			            onClick: function () {
-			                that.changeColour(target, 60)
+			                that.startTiming(target, 60)
 			            }
 			        },
 			        {
 			            text: '30 Minutes',
 			            //color: 'blue',
 			            onClick: function () {
-			                that.changeColour(target, 30)
+			                that.startTiming(target, 30)
 			            }
 			        }
 			    ];
@@ -489,31 +510,49 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			    App.Framework7.actions(groups);
 				App.Framework7.swipeoutClose(target);
 			}
-
-			
 		},
-
 
 		startTiming: function (target, max) {
 			var that = this;
 			var id = this.getId(target);
 
+			//Set model
 			that.collection.get(id).set("isTiming", true);
 			that.collection.get(id).set("maxTiming", max);
 			that.collection.get(id).set("timingStamp", new Date().getTime());
 
+			//Save timestamp
 			that.collection.get(id).startTiming();
 
-			target.find("swipeout-actions-left").removeClass("swipeout-actions-left").addClass("swipeout-actions-left-disabled");
-
+			//Disable other functionality
+			target.find(".swipeout-actions-left").addClass("swipeout-actions-left-disabled").removeClass("swipeout-actions-left");
+			target.find(".range-slider input").prop('disabled', true);
 			target.addClass("is-timing");
+
+			//Update visuals
+			this.timingInterval();
 		},
-
-
 
 		stopTiming: function (target) {
 			var id = this.getId(target);
-			that.collection.get(id).startTiming();
+
+			this.collection.get(id).stopTiming();
+			target.removeClass("is-timing");
+			target.find(".range-slider input").prop('disabled', false);
+			target.find(".swipeout-actions-left-disabled").removeClass("swipeout-actions-left-disabled").addClass("swipeout-actions-left");
+
+			clearInterval(this.timingInterval);
+		},
+
+		timingInterval: function (target) {
+			var that = this;
+			var id = this.getId(target);
+
+			this.timingInterval = setInterval(function(){
+				var current = that.collection.get(id).get("todaysTime")
+				that.collection.get(id).set("todaysTime", current + 1)
+				$(".total-time").text(that.getTotalTime());
+			}, 60000)
 		}
 
 

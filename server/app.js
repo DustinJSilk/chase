@@ -472,7 +472,6 @@ app.use('/togglehide', function(req, res) {
 
 
 
-/* GET timesheets - id: _id */
 app.use('/starttiming', function(req, res) {
 	var user = {req: req, res: res};
 	user.id = req.body.id;
@@ -483,6 +482,25 @@ app.use('/starttiming', function(req, res) {
 
 	var promise = (function startTiming () {
 			return database.startTiming(user)
+		.then(function (data) {
+			clientResponser.success(data);
+		});
+	});
+
+	promise.call();
+});
+
+
+
+app.use('/stoptiming', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+
+	user.jobID = req.body.jobID;
+	user.addedTime = req.body.addedTime;
+
+	var promise = (function stopTiming () {
+			return database.stopTiming(user)
 		.then(function (data) {
 			clientResponser.success(data);
 		});
