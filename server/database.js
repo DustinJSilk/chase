@@ -398,12 +398,12 @@ var createNewJob = function (user) {
 			timeSheets: {
 				id: 			timeSheetId,
 				customTitle: 	user.job.customTitle,
-				colour: 		user.job.colour,
-				isAnonymous: 	user.job.isAnonymous,
 				appTime: 		0,
 				chaseId: 		chaseId,
+				isAnonymous: 	user.job.isAnonymous,
 				isHidden: 		false,
 				isTiming: 		false,
+				isFavourite: 	false,
 				timingStamp: 	0,
 				chaseTime:  	0,
 				record: 		[]
@@ -507,6 +507,36 @@ var favourite = function (user) {
 			}
 		}
 
+
+		users.update({ '_id': id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+
+var purgeall = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			data[0].timeSheets[i].appTime = 0;
+		}
+
+
 		users.update({ '_id': id }, {
 			$set: {
 				timeSheets: data[0].timeSheets
@@ -542,5 +572,6 @@ module.exports = {
   getJobType: 				getJobType,
   startTiming: 				startTiming,
   stopTiming: 				stopTiming,
-  favourite: 				favourite
+  favourite: 				favourite,
+  purgeall: 				purgeall
 }

@@ -69,37 +69,43 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		initEvents: function () {
 			var that = this;
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
-			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+			var preventOpen = false;
+
+			var bindTypeEnd = (App.platform === "desktop") ? "mouseup" : "touchend";
+    		var bindTypeStart = (App.platform === "desktop") ? "mousedown" : "touchstart";
 
 			//Swip out actions
 			var isSwipe = false;
 			var isOpen = false;
-			App.$$('.swipeout').on('open', function () {
+			App.$$('.swipeout').off("open").on('open', function () {
 				isSwipe = true;
 				isOpen = true;
 			});
-			App.$$('.swipeout').on('close', function () {
+			App.$$('.swipeout').off("close").on('close', function () {
 				isSwipe = true;
 				isOpen = false
 			});
 
 
-			$(".swipe-complete").on("click", function (e) {
+			$(".swipe-complete, .job-icons-complete").off("click").on("click", function (e) {
 				var target = $(e.target).closest("li");
 				that.completeJob(target);
 			});
+			// $(".swipe-complete, job-icons-complete").on("click", function (e) {
+			// 	var target = $(e.target).closest("li");
+			// 	that.completeJob(target);
+			// });
 
-			$(".swipe-timer").on("click", function (e) {
+			$(".swipe-timer").off("click").on("click", function (e) {
 				var target = $(e.target).closest("li");
 				that.swipeTimer(target);
 			});
 
-			//Open / close job options
-			$(".item-link").on(bindTypeEnd, function(e){
-				console.log("item link")
+			//Open / close job drawer
+			$(".item-link").off(bindTypeEnd).on(bindTypeEnd, function(e){
 				var el = $(this);
 				setTimeout(function () {
+					if (preventOpen) return;
 					if (isSwipe === true || isOpen === true) {
 						isSwipe = false;
 						return
@@ -110,21 +116,26 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			});
 
 			//Pull to refresh
-			var ptrContent = App.$$('.pull-to-refresh-content');
-			ptrContent.on('refresh', function (e) {
-				that.refresh();
-			})
+			if (App.platform !== "desktop") {
+				var ptrContent = App.$$('.pull-to-refresh-content');
+				ptrContent.on('refresh', function (e) {
+					that.refresh();
+				})
+			} else {
+				var ptrContent = App.$$('.pull-to-refresh-content');
+				App.Framework7.destroyPullToRefresh(ptrContent)
+			}
+
 
 			//If showing unsaved items
             if ( this.options.unsaved ) {
-            	$(".unsaved .finish ").on(bindTypeEnd, function () {
+            	$(".unsaved .finish ").off(bindTypeEnd).on(bindTypeEnd, function () {
             		Backbone.history.navigate("#save-all", {trigger: true, replace: true});
             	})
-            	$(".unsaved .cancel a").on(bindTypeEnd, function () {
+            	$(".unsaved .cancel a").off(bindTypeEnd).on(bindTypeEnd, function () {
             		App.Framework7.confirm("Any unsaved time will return to what is currently saved on Chase." , 'Are you sure?', function () {
             			Backbone.history.navigate("#purge-all", {trigger: true, replace: true});
             		});
-            		
             	})
             }
 
@@ -134,17 +145,28 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
             })
 
             //disable swipe out on slide
-            $(".timesheet-item input").on(bindTypeStart, function (){
+            $(".timesheet-item input").off(bindTypeStart).on(bindTypeStart, function (){
             	$(this).closest("li").removeClass("swipeout");
             })
-            $(".timesheet-item input").on(bindTypeEnd, function (){
+            $(".timesheet-item input").off(bindTypeEnd).on(bindTypeEnd, function (){
             	$(this).closest("li").addClass("swipeout");
             })
 
 
             // Favourite Job
-			$(".favourite").on(bindTypeEnd, function (){
+			$(".favourite").off(bindTypeEnd).on(bindTypeEnd, function (){
+				preventOpen = true;
 				that.favourite($(this).closest("li"));
+				setTimeout(function () {
+					preventOpen = false;
+				}, 50)
+			})
+
+			$(".timesheet-item").off("mouseover").on("mouseover", function () {
+				$(this).addClass("hover");
+			})
+			$(".timesheet-item").off("mouseout").on("mouseout", function () {
+				$(this).removeClass("hover");
 			})
 
 		},
@@ -185,9 +207,9 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			slider.toggleClass("isOpen");
 
 			if (slider.hasClass("isOpen")) {
-				slider.closest("li").removeClass("swipeout");
+				slider.closest("li").removeClass("swipeout").addClass("hover");
 			} else {
-				slider.closest("li").addClass("swipeout");
+				slider.closest("li").addClass("swipeout").removeClass("hover");
 			}
 		},
 
@@ -200,25 +222,56 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 
 
 		completeJob: function (target) {
+			var that = this;
+
 			var id = this.getId(target);
 
 			if (target.hasClass("is-timing")) {
 				App.Framework7.alert("Stop timing if you want to complete this task.", "You're still timing");
 				return;
 			} 
-			this.collection.get(id).completeJob();
-
-			target.slideUp(400, function(){
-				target.addClass("complete");
-			});
 			
+			this.collection.get(id).completeJob();
+			
+			if (!target.hasClass("complete")) {
+				if ($(".complete").length < 1) {
+					$(".timesheets-list").append('<li class="item-divider complete-divider">Completed jobs<span class="close-completed"></span></li>');
+				}
+
+				target.slideUp(400, function(){
+					target.addClass("complete");
+					var newTarget = target.clone();
+					target.remove();
+
+					newTarget.insertAfter($(".complete-divider"))
+					newTarget.find(".timer-slider").hide().removeClass("isOpen")
+					that.initEvents();
+				});
+
+			} else {
+				target.slideUp(400, function(){
+					target.removeClass("complete");
+					var newTarget = target.clone();
+					target.remove();
+
+					newTarget.insertBefore($(".complete-divider"));
+					newTarget.find(".timer-slider").hide().removeClass("isOpen");
+					newTarget.slideDown();
+					if ($(".complete").length < 1) {
+						$(".complete-divider").slideUp();
+					}
+					that.initEvents();
+				});
+			}
+		
 		},
+
 
 
 		favourite: function (target) {
 			var id = this.getId(target);
 			this.collection.get(id).favourite();
-			target.addClass("favourite")
+			target.toggleClass("pinned")
 		},
 
 
@@ -437,6 +490,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			target.find(".swipeout-actions-left-disabled").removeClass("swipeout-actions-left-disabled").addClass("swipeout-actions-left");
 
 			clearInterval(this.timingInterval);
+
+			return false;
 		},
 
 		timingInterval: function (target) {

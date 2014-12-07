@@ -51,6 +51,7 @@ define(["app"], function (App) {
         },
 
         saveAll: function () {
+            App.Framework7.closePanel();
             require([ "app", "views/login" ], function (App, LoginView) {
                 $.ajax({
                     url: App.urlRoot + "/saveall",
@@ -76,6 +77,7 @@ define(["app"], function (App) {
         },
 
         purgeAll: function () {
+            App.Framework7.closePanel();
             require([ "app", "views/login" ], function (App, LoginView) {
                 $.ajax({
                     url: App.urlRoot + "/purgeall",

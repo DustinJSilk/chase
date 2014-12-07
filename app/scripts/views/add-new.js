@@ -23,7 +23,8 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 			App.mainView.router.loadContent($("#add-new-template").html())
 
             $(".go-back").click(function(){
-            	$(".add-new .link-job").toggleClass("active");
+            	console.log("going back")
+            	$(".add-new .link-job").removeClass("active");
             	App.mainView.back();
             	Backbone.history.navigate("#index", {trigger: true, replace: true});
             	that.remove();
@@ -42,8 +43,8 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 		initEvents: function () {
 			var that = this;
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
-			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+			var bindTypeEnd = (App.platform === "desktop") ? "mouseup" : "touchend";
+    		var bindTypeStart = (App.platform === "desktop") ? "mousedown" : "touchstart";
 
 			$(".add-new a.finish").on(bindTypeEnd, function(e){
 				that.submit();
@@ -160,7 +161,9 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 				$(".search-results").append("<li data-jobid='" + items[i][0] + "' data-jobnumber='" + items[i][1].match(/\d+(\d+|\w+)/) + "'>" + items[i][1] + "</li>")
 			}
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
+			var bindTypeEnd = (App.platform === "desktop") ? "mouseup" : "touchend";
+    		var bindTypeStart = (App.platform === "desktop") ? "mousedown" : "touchstart";
+    		
 			$(".search-results li").on(bindTypeEnd, function () {
 				that.selectSearch($(this));
 			})

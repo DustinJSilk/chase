@@ -59,57 +59,13 @@ body, html {
     user-select: none;
 }
 
-.select-blue {
-	background-color: #00b5ef;
-}
-
-.select-yellow {
-	background-color: #f0e936;
-}
-
-.select-red {
-	background-color: #ee3124;
-}
-
-
-
-.timesheet-item.red {
-	border-left: 7px solid #ee3124;
-}
-
-.timesheet-item.yellow {
-	border-left: 7px solid #f0e936;
-}
-
-.timesheet-item.blue {
-	border-left: 7px solid #00b5ef;
-}
-
-
-
-.timesheet-item .hide {
-	background-color: #000;
-}
-
-.timesheet-item.red .hide {
-	background-color: #ee3124;
-}
-
-.timesheet-item.yellow .hide {
-	background-color: #f0e936;
-}
-
-.timesheet-item.blue .hide {
-	background-color: #00b5ef;
-}
-
 
 .job-timer {
-	width: 130px;
+	width: 105px;
 	height: 100px;
 	text-align: center;
 	padding-top: 32px;
-	padding-left: 30px;
+	padding-left: 13px;
 	padding-right: 25px;
 	position: relative;
 }
@@ -128,7 +84,7 @@ body, html {
 	width: 22px;
 	height: 22px;
 	position: absolute;
-	left: 15px;
+	left: 5px;
 	top: 38px;
 	background-image: url('../img/clock.png');
 	background-repeat: no-repeat;
@@ -142,6 +98,63 @@ body, html {
 
 .is-timing .job-timer .clock:hover {
 	background-image: url('../img/pause.png');
+}
+
+.job-icons {
+	width: 222px;
+	overflow: auto;
+	display: none;
+}
+
+.hover .job-icons {
+	display: block;
+}
+
+.job-icons span:before {
+	height: 24px;
+	width: 24px;
+	cursor: pointer;
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	font-size: 20px;
+	text-align: center;
+	float: right;
+	color: #4f4f4f;
+	margin: 0 10px;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.job-icons span:hover:before {
+	color: #000;
+}
+
+span.job-icons-complete:before {
+	content: "\e603";
+	font-size: 24px;
+	margin-top: 2px;
+}
+span.job-icons-favourite:before {
+	content: "\e604";
+	font-size: 29px;
+}
+span.job-icons-edit:before {
+	content: "\e609";
+	margin-top: 5px;
+}
+
+.complete .job-icons-complete:before {
+	color: #00b5ef;
+}
+.pinned .favourite:before {
+	color: #00b5ef;
 }
 
 
@@ -444,6 +457,33 @@ body, html {
 	cursor: pointer;
 }
 
+
+.timesheet-item.pinned .item-inner {
+	padding-left: 26px;
+}
+
+.timesheet-item.pinned .item-inner:before {
+	content: "\e604";
+
+	cursor: pointer;
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	font-size: 24px;
+	position: absolute;
+	left: 9px;
+	top: 27px;
+	color: #00b5ef;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
 .timer-slider form {
 	padding: 10px 20px 0;
 	display: block;
@@ -485,21 +525,8 @@ body, html {
 }
 
 .timer-slider .range-slider input[type="range"]::-webkit-slider-thumb:before {
-	background-color: #000;
-	height: 3px;
-}
-
-.timer-slider.red .range-slider input[type="range"]::-webkit-slider-thumb:before {
 	background-color: #ee3124;
-}
-
-
-.timer-slider.yellow .range-slider input[type="range"]::-webkit-slider-thumb:before {
-	background-color: #f0e936;
-}
-
-.timer-slider.blue .range-slider input[type="range"]::-webkit-slider-thumb:before {
-	background-color: #00b5ef;
+	height: 3px;
 }
 
 .list-block ul {
@@ -593,7 +620,7 @@ body, html {
 }
 
 .timesheet-item .item-inner {
-	padding-top: 20px!important;
+	padding-top: 26px!important;
 }
 
 
@@ -623,8 +650,9 @@ body, html {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-
-/* Swip out right */
+.list-block .swipeout-actions-left a, .list-block .swipeout-actions-right a {
+	padding: 0 120px;
+}
 
 
 .swipe-timer {

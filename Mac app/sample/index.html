@@ -1,100 +1,115 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+
+<html lang="en">
 <head>
-  <title>Menubar WebKit</title>
-  <style>
-  html {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    background-color: white;
-  }
-  body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    overflow: auto;
-    font-family: "Helvetica Neue";
-  }
-  h1 {
-    background-color: rgb(237, 237, 237);
-    text-align: center;
-    font-weight: normal;
-    color: #333;
-    margin: 0;
-    padding: 12px 0 10px 0;
-    font-size: 16px;
-    border-bottom: 1px solid #ccc;
-  }
-  #app-version,
-  #app-bundle-version {
-    color: #777;
-    font-size: 13px;
-  }
-  .button {
-    text-align: center;
-    margin-top: 16px;
-  }
-  .button p {
-    margin: 11px 0;
-  }
-  button {
-    width: 90px;
-    margin: 3px;
-    padding: 5px 0;
-    font-family: "Helvetica Neue";
-    background-color: #eee;
-    border-radius: 2px;
-    border: 1px solid #ccc;
-  }
-  button:hover {
-    background-color: #f2f2f2;
-  }
-  button:active {
-    background-color: #e8e8e8;
-  }
-  canvas {
-    display: none;
-  }
-  </style>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	
+	<title>Time Tracker</title>
+	<meta name="description" content="Chase Software plugin app">
+	<meta name="author" content="Dustin J Silk - Publicis Machine">
+
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/formalize.css">
+	<link rel="stylesheet" href="css/framework7.css">
+	<link rel="stylesheet" href="css/main.css">
+	
+	<script src="phonegap.js"></script>
+	<script src="scripts/lib/framework7.js"></script>
+	<script data-main="scripts/main" src="scripts/lib/require.js"></script>
+	
+
+
 </head>
+
 <body>
-  <h1>
-    Menubar WebKit
-    <span id="app-version"></span>
-    <span id="app-bundle-version"></span>
-  </h1>
+	<div class="panel-overlay"></div>
 
-  <audio src="audio.aac"></audio>
+    <div class="panel panel-left panel-cover">
+		<ul>
+			<li class="nav-logo"><img src="img/nav-logo.png" alt="Footprint Logo"/></li>
+			<li><a id="show-completed"><span class="icon">&#xe603;</span>Completed</a></li>
+			<li><a href="#save-all"><span class="icon">&#xe606;</span>Save</a></li>
+			<li><a><span class="icon">&#xe605;</span>Clear</a></li>
+			<li><a href="#logout"><span class="icon">&#xe608;</span>Logout</a></li>
+			<li><a><span class="icon">&#xe607;</span>Settings</a></li>
+		</ul>
+    </div>
+ 	
+ 	<div class="login-screen" id="login-screen"></div>
 
-  <div class="button">
-    <p>
-      <button onclick="mw.notify({title: 'Menubar WebKit', content: 'Hello World', popupOnClick: true})">Notify</button>
-      <button onclick="mw.closePopup()">Close Popup</button>
-      <button onclick="mw.newWindow({url: 'about.html', width: 600, height: 400, x: 'center', y: 'center'})">New Window</button>
-    </p>
-    <p>
-      <button onclick="mw.openPreferences()">Preferences</button>
-      <button onclick="mw.openURL('https://github.com/xhacker')">Open URL</button>
-      <button onclick="mw.checkUpdate('https://rawgit.com/HackPlan/menubar-webkit/master/updater/SampleAppcast.xml')">Check Update</button>
-    </p>
-    <p>
-      <button onclick="setIcon()">Set Icon</button>
-      <button id="show-menu">Show Menu</button>
-      <button id="toggle-pin">Pin</button>
-    </p>
-    <p>
-      <button onclick="$('audio')[0].play()">Audio</button>
-      <button onclick="alert('menubar-webkit')">Alert</button>
-      <button onclick="confirm('menubar-webkit?')">Confirm</button>
-    </p>
-    <p>
-      <button onclick="mw.quit()">Quit</button>
-    </p>
-  </div>
-  <canvas id="icon"></canvas>
-  <canvas id="highlighted-icon"></canvas>
-  <script type="text/javascript" src="jquery-2.1.0.min.js"></script>
-  <script type="text/javascript" src="index.js"></script>
+	<div class="views">
+    	<div class="view view-main">
+			
+		
+			<div class="pages">
+
+				<div data-page="index" class="page navbar-fixed toolbar-fixed">
+					<div class="navbar">
+						<div class="navbar-inner" data-page="index">
+							<div class="left hamburger">
+					            <a data-panel="left" class="open-panel"><img src="img/hamburger.png"/></a>
+					        </div>
+							<div class="center"><span class="day">Today</span><span class="total-time"></span></div>
+							<div class="right plus">
+								<label class="label-switch toggle-complete">
+								    <input type="checkbox">
+								    <div class="checkbox"></div>
+							  	</label>
+					            <a href="#add-new" class="add-new"><img src="img/plus.png"/></a>
+					        </div>
+						</div>
+					</div>
+					<div class="page-content pull-to-refresh-content">
+						<div class="pull-to-refresh-layer">
+							<div class="preloader"></div>
+							<div class="pull-to-refresh-arrow"></div>
+					    </div>
+					    <span class="timesheets-loader preloader"></span>
+						<div id="page"></div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+	
+	<div class="unsaved">
+		<div class="navbar">
+			<div class="navbar-inner" data-page="index">
+				<div class="left cancel">
+		            <a></a>
+		        </div>
+				<div class="center total-time"></div>
+				<div class="right finish">
+		            <a></a>
+		        </div>
+			</div>
+		</div>
+		<div id="unsaved"></div>
+	</div>
+
+	<div id="add-new-template" class="template">
+		<div data-page="add-new" class="add-new page navbar-fixed toolbar-fixed">
+			<div class="navbar">
+				<div class="navbar-inner" data-page="add-new">
+					<div class="left">
+			            <a class="go-back cancel"></a>
+			        </div>
+			        <div class="right">
+			        	<a class="link-job"></a>
+			        	<!-- <a class="colourize"></a> -->
+			            <a class="finish"></a>
+			        </div>
+				</div>
+			</div>
+			<div class="page-content">
+				<div id="add-new"></div>
+			</div>
+		</div>
+	</div>
+
+
 </body>
 </html>

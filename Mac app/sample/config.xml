@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<widget xmlns   = "http://www.w3.org/ns/widgets"
+    xmlns:gap   = "http://phonegap.com/ns/1.0"
+    id          = "com.machine.footprint"
+    versionCode = "0.0.3" 
+    version     = "0.0.3" >
+
+    <!-- versionCode is optional and Android only -->
+
+    <name>Footprint</name>
+
+    <description>
+        Footprint for Publicis Machine
+    </description>
+
+    <author email="dustinjsilk@gmail.com">
+        Dustin J Silk
+    </author>
+
+
+    <!-- Preferences -->
+    <preference name="DisallowOverscroll"         value="true" />
+    <preference name="orientation"                value="portrait" />
+    <preference name="webviewbounce"              value="false" />
+    <preference name="exit-on-suspend"            value="true" />
+
+
+    <!-- Plugins -->
+    
+
+</widget>
+

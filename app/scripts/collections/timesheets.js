@@ -8,32 +8,19 @@ define(["app", "backbone", "models/timesheet"], function (App, Backbone, Timeshe
 
 		},
 
-		getColourRank: function (colour) {
-			var rank = 0;
-			switch (colour) {
-				case "red":
-					rank = 3;
-					break;
-				case "yellow":
-					rank = 2;
-					break;
-				case "blue":
-					rank = 1;
-					break;
-				default: 
-					rank = 0;
-					break;
-			}
-			return rank;
-		},
-
 		parse: function (response) {
 			var that = this;
 
+			for (var i = 0; i < response.length; i ++ ) {
+				response[i].customTitle = response[i].customTitle.charAt(0).toUpperCase() + response[i].customTitle.slice(1);
+			}
+
 			response.sort(function (a, b) {
-				// Sort by colour
-				if (that.getColourRank(a.colour) < that.getColourRank(b.colour)) return 1;
-				if (that.getColourRank(a.colour) > that.getColourRank(b.colour)) return -1;
+				if (a.isHidden < b.isHidden) return -1;
+				if (a.isHidden > b.isHidden) return 1;
+
+				if (a.isFavourite < b.isFavourite) return 1;
+				if (a.isFavourite > b.isFavourite) return -1;
 
 				// Sort by highest number
 				if (a.todaysTime !== b.todaysTime) return b.todaysTime - a.todaysTime;

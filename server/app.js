@@ -530,6 +530,22 @@ app.use('/favourite', function(req, res) {
 });
 
 
+// Favourite / unfavourite - isFavourite: {{0 / 1}}
+app.use('/purgeall', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+
+	var promise = (function favourite () {
+			return database.purgeall(user)
+		.then(function (data) {
+			clientResponser.success(data);
+		});
+	});
+
+	promise.call();
+});
+
+
 
 /*
 	Start server

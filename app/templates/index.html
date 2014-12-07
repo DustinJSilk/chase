@@ -15,7 +15,10 @@
 					disabledSlider = "disabled";
 				} 
 				if ( data.sheets[i].get("isFavourite") ) { 
-					masterClass += "favourite ";
+					masterClass += "pinned ";
+				}
+				if (!$("html").hasClass("desktop")){
+					masterClass += "swipeout ";
 				}
 			%>
 			
@@ -26,7 +29,7 @@
 				<li class="item-divider complete-divider">Completed jobs<span class="close-completed"></span></li>
 			<% } %>
 
-			<li class="swipeout timesheet-item <%= masterClass %>" id="<%= data.sheets[i].get("_id") %>">
+			<li class="timesheet-item <%= masterClass %>" id="<%= data.sheets[i].get("_id") %>">
 				<div class="swipeout-content">
 					<a id="#job/<%= data.sheets[i].get("_id") %>" class="item-link item-content">
 		                <div class="item-inner">
@@ -34,6 +37,11 @@
 		                        <div class="item-title"><%= data.sheets[i].get("customTitle") %></div>
 		                    </div>
 		                    <div class="item-subtitle"><%= data.sheets[i].get("subtitle") %></div>
+		                </div>
+		                <div class="job-icons">
+			                <!-- <span class="job-icons-edit"></span> -->
+							<span class="job-icons-favourite favourite hide-for-unsaved"></span>
+							<span class="job-icons-complete"></span>
 		                </div>
 		                <div class="job-timer">
 		                	<span class="clock"></span>
@@ -49,11 +57,6 @@
 							    </div>
 							</div>  
 						</form>
-						<div class="mobile job-links">
-							<a class="favourite hide-for-unsaved">Favourite</a>
-							<a class="hide-for-unsaved">Start Timing</a>
-							<a>Edit</a>
-						</div> 
 					</div>
 		        </div>
 				

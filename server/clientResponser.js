@@ -47,7 +47,9 @@ exports.timeSheets = function (user) {
 		} else if (user.timeSheets[i].customTitle.length < 1) {
 			sheets[i].customTitle = user.timeSheets[i].record[9];
 			sheets[i].subtitle = user.timeSheets[i].record[9].split(" - ")[0] + " - " + user.timeSheets[i].record[6] + " - " + user.timeSheets[i].record[9].split(" - ")[1];
-		}
+		} else {
+            sheets[i].subtitle = user.timeSheets[i].record[9].split(" - ")[0] + " - " + user.timeSheets[i].record[6] + " - " + user.timeSheets[i].record[9].split(" - ")[1];
+        }
 
 	}
 

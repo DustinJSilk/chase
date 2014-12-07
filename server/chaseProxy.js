@@ -120,6 +120,10 @@ var getTimesheets = function (user) {
 	    		user.rejected = 408;
 	    		deferred.reject(user);
 
+	    	} else if (response === undefined) {
+	    		user.rejected = 408;
+	    		deferred.reject(user);
+
 	    	} else if (response.statusCode === 302) {
 	    		user.rejected = 302;
 	    		deferred.reject(user);

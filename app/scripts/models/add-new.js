@@ -87,7 +87,10 @@ define(["app", "backbone"], function (App, Backbone) {
                 	}
 
                 },
-                error: function () {
+                error: function (xhr, e) {
+                    if (e === "abort") {
+                        return;
+                    }
                     App.Framework7.alert("Oh no! Something went wrong.", 'Conection Error');
                 }
 			})

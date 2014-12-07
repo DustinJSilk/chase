@@ -11,6 +11,7 @@ define(["app", "backbone"], function (App, Backbone) {
 			isHidden: 			false,
 			isAnonymous: 		false,
 			isTiming: 			false,
+			isFavourite: 		false,
 			timingStamp: 		0,
 			maxTiming: 			0,
 			todaysTime:  		0
@@ -24,8 +25,7 @@ define(["app", "backbone"], function (App, Backbone) {
 				var addedTime = Math.round(difference / 1000 / 60);
 
 				this.set("todaysTime", this.get("todaysTime") + addedTime)
-			}
-			
+			}			
 			//this.listenTo(this, 'change', this.updateTime);
 		},
 
@@ -107,14 +107,14 @@ define(["app", "backbone"], function (App, Backbone) {
 
 		favourite: function () {
 			var that = this;
-
+			that.set("isFavourite", !+ that.get("isFavourite"))
 			$.ajax({
 				url: App.urlRoot + "/favourite",
 				type: "POST",
 				data: {
 					id: App.userID,
-					job: that.id,
-					ifFavourite: + that.get("isFavourite")
+					jobID: that.id,
+					isFavourite: + that.get("isFavourite")
 				},
 				success: function () {
 					
@@ -131,17 +131,18 @@ define(["app", "backbone"], function (App, Backbone) {
 
 		completeJob: function () {
 			var that = this;
-			
+			var set = (that.get("isHidden") === true) ? false : true;
+
 			$.ajax({
 				url: App.urlRoot + "/togglehide",
 				type: "POST",
 				data: {
 					id: App.userID,
 					job: that.id,
-					hide: true
+					hide: set				
 				},
 				success: function () {
-					console.log("hidden")
+					that.set("isHidden", set)
 				},
 				error: function () {
 					if (err.status === 401) {

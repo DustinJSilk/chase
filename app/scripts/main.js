@@ -31,10 +31,14 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
 
     App.os = "mac";
     // App.os = "windows";
-    // App.os = "ios";
+    //App.os = "ios";
     // App.os = "android";
+    
+    App.platform = "desktop"
+    //App.platform = "mobile"
 
-    //$('html').addClass(App.os)
+    $('html').addClass(App.os)
+    $('html').addClass(App.platform)
 
     App.Framework7 = new Framework7({
         dynamicNavbar: true,
@@ -61,8 +65,8 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     App.start();
 
 
-    var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
-    var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+    var bindTypeEnd = (App.platform === "desktop") ? "mouseup" : "touchend";
+    var bindTypeStart = (App.platform === "desktop") ? "mousedown" : "touchstart";
 
     // Show Complete
     function toggleCompleted () {
