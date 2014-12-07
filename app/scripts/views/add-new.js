@@ -42,8 +42,8 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 		initEvents: function () {
 			var that = this;
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "mobile") ? "mouseup" : "touchend";
-			var bindTypeStart = (App.os === "mac" || App.os === "mobile") ? "mousedown" : "touchstart";
+			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
+			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
 
 			$(".add-new a.finish").on(bindTypeEnd, function(e){
 				that.submit();
@@ -160,7 +160,7 @@ define(["app", "marionette", "text!templates/add-new.html", "lib/easing"], funct
 				$(".search-results").append("<li data-jobid='" + items[i][0] + "' data-jobnumber='" + items[i][1].match(/\d+(\d+|\w+)/) + "'>" + items[i][1] + "</li>")
 			}
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "mobile") ? "mouseup" : "touchend";
+			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
 			$(".search-results li").on(bindTypeEnd, function () {
 				that.selectSearch($(this));
 			})

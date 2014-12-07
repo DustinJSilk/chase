@@ -36,9 +36,6 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			//What happens when you move a slider
 			this.initSliderData();
 
-			//Setup what happens when you click on a colour change
-			this.initColourChangeEvents();
-
 			//Listen for model changes and update times
 			that.listenTo(that.collection, 'change', that.updateTimeVisual);
 
@@ -72,8 +69,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		initEvents: function () {
 			var that = this;
 
-			var bindTypeEnd = (App.os === "mac" || App.os === "mobile") ? "mouseup" : "touchend";
-			var bindTypeStart = (App.os === "mac" || App.os === "mobile") ? "mousedown" : "touchstart";
+			var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
+			var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
 
 			//Swip out actions
 			var isSwipe = false;
@@ -100,6 +97,7 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 
 			//Open / close job options
 			$(".item-link").on(bindTypeEnd, function(e){
+				console.log("item link")
 				var el = $(this);
 				setTimeout(function () {
 					if (isSwipe === true || isOpen === true) {
@@ -116,23 +114,6 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			ptrContent.on('refresh', function (e) {
 				that.refresh();
 			})
-
-			// $("a.add-new").on(bindTypeEnd, function () {
-			// 	Backbone.history.navigate("#/add-job", {trigger: true, replace: true});
-			// });
-
-			// //Stop linking through if trying to change the time.
-			// $(".item-link").click(function(e){
-			// 	if ( $(e.originalEvent.target).hasClass("time") ) {
-			// 		e.preventDefault();
-			// 	}
-			// });
-
-			$("#show-completed").on(bindTypeEnd, function (){
-				$(".timesheet-item.complete").slideToggle()
-			})
-
-
 
 			//If showing unsaved items
             if ( this.options.unsaved ) {
@@ -159,6 +140,12 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
             $(".timesheet-item input").on(bindTypeEnd, function (){
             	$(this).closest("li").addClass("swipeout");
             })
+
+
+            // Favourite Job
+			$(".favourite").on(bindTypeEnd, function (){
+				that.favourite($(this).closest("li"));
+			})
 
 		},
 
@@ -190,6 +177,8 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 		///////////////////////////////////////
 		////	Single job functions
 		///////////////////////////////////////
+
+		// Open or close job drawer - show / hide slider
 		toggleJobOptions: function (el) {			
 			var slider = el.parent().find(".timer-slider");
 			slider.slideToggle();
@@ -209,121 +198,27 @@ define(["app", "marionette", "text!templates/index.html"], function (App, Marion
 			return id;
 		},
 
-		initColourChangeEvents: function () {
-			var that = this;
-
-			//- With callbacks on click
-			$('.colourize').on('click', function () {
-				var el = this;
-			    var buttons1 = [
-				    {
-			            text: 'Pin by colour',
-			            label: true
-			        },
-			        {
-			            text: 'Red',
-			            color: 'red',
-			            onClick: function () {
-			                that.changeColour("red", el)
-			            }
-			        },
-			        {
-			            text: 'Yellow',
-			            color: 'yellow',
-			            onClick: function () {
-			                that.changeColour("yellow", el)
-			            }
-			        },
-			        {
-			            text: 'Blue',
-			            color: 'blue',
-			            onClick: function () {
-			                that.changeColour("blue", el)
-			            }
-			        }
-			    ];
-
-			    var buttons2 = [
-			        {
-			            text: 'Cancel',
-			            onClick: function () {
-			            }
-			        }
-			    ]
-			    var groups = [buttons1, buttons2];
-			    App.Framework7.actions(groups);
-			});   
-
-			// App.$$('.select-red').on('click', function () {
-				
-			// });
-
-			// App.$$('.select-blue').on('click', function () {
-				
-			// });
-
-			// App.$$('.select-yellow').on('click', function () {
-				
-			// });
-		},
-
-		changeColour: function (colour, el) {
-			var job = this.getId(el);
-
-			var colour = ($(el).closest("li").hasClass(colour)) ? "" : colour;
-
-			
-			$(el).closest("li").removeClass("red yellow blue").addClass(colour);
-
-			//App.Framework7.swipeoutClose($(el).closest("li"));
-			
-			
-			$.ajax({
-				url: App.urlRoot + "/colour",
-				type: "POST",
-				data: {
-					id: App.userID,
-					job: job,
-					colour: colour
-				},
-				success: function () {
-					console.log("success")
-				},
-				error: function () {
-					
-				}
-			});
-		},
 
 		completeJob: function (target) {
-			var job = this.getId(target);
+			var id = this.getId(target);
 
 			if (target.hasClass("is-timing")) {
 				App.Framework7.alert("Stop timing if you want to complete this task.", "You're still timing");
 				return;
 			} 
+			this.collection.get(id).completeJob();
 
-			$.ajax({
-				url: App.urlRoot + "/togglehide",
-				type: "POST",
-				data: {
-					id: App.userID,
-					job: job,
-					hide: true
-				},
-				success: function () {
-					target.slideUp(400, function(){
-						target.addClass("complete");
-					});
-				},
-				error: function () {
-					if (err.status === 401) {
-                        App.Framework7.loginScreen();
-                    } else {
-                        App.Framework7.alert("Oh no! Someone broke the internet.", 'Connection error');
-                    }
-				}
+			target.slideUp(400, function(){
+				target.addClass("complete");
 			});
+			
+		},
+
+
+		favourite: function (target) {
+			var id = this.getId(target);
+			this.collection.get(id).favourite();
+			target.addClass("favourite")
 		},
 
 

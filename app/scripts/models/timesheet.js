@@ -103,6 +103,54 @@ define(["app", "backbone"], function (App, Backbone) {
                     console.log(err, xhr, o)
                 }
 			})
+		},
+
+		favourite: function () {
+			var that = this;
+
+			$.ajax({
+				url: App.urlRoot + "/favourite",
+				type: "POST",
+				data: {
+					id: App.userID,
+					job: that.id,
+					ifFavourite: + that.get("isFavourite")
+				},
+				success: function () {
+					
+				},
+				error: function () {
+					if (err.status === 401) {
+                        App.Framework7.loginScreen();
+                    } else {
+                        App.Framework7.alert("Unable to update job", 'Connection error');
+                    }
+				}
+			});
+		},
+
+		completeJob: function () {
+			var that = this;
+			
+			$.ajax({
+				url: App.urlRoot + "/togglehide",
+				type: "POST",
+				data: {
+					id: App.userID,
+					job: that.id,
+					hide: true
+				},
+				success: function () {
+					console.log("hidden")
+				},
+				error: function () {
+					if (err.status === 401) {
+                        App.Framework7.loginScreen();
+                    } else {
+                        App.Framework7.alert("Unable to update job", 'Connection error');
+                    }
+				}
+			});
 		}
 	})
 

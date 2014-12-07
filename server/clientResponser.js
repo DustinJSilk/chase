@@ -26,9 +26,9 @@ exports.timeSheets = function (user) {
 			_id: 				user.timeSheets[i].id,
 			customTitle: 		user.timeSheets[i].customTitle,
 			subtitle: 			"",
-			colour: 			user.timeSheets[i].colour,
 			isHidden: 			user.timeSheets[i].isHidden,
 			isAnonymous: 		user.timeSheets[i].isAnonymous,
+            isFavourite:        user.timeSheets[i].isFavourite,
 			isTiming: 			user.timeSheets[i].isTiming,
 			timingStamp: 		user.timeSheets[i].timingStamp,
 			todaysTime:  		parseInt(user.timeSheets[i].chaseTime) + parseInt(user.timeSheets[i].appTime)

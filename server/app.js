@@ -24,15 +24,15 @@ app.use('/login', function(req, res) {
 
 	var promise = chaseProxy.login(user)
 		.then(function (data){
-			console.log("inserting")
+			console.log("Inserting\r\n")
 			return database.insertDetails(data);
 		})
 		.then(function (data){
-			console.log("checking")
+			console.log("checking\r\n")
 			return database.checkUserType(data);
 		})
 		.then(function (data){
-			console.log("responding")
+			console.log("responding\r\n")
 			return clientResponser.login(data)
 		})
 });
@@ -124,6 +124,7 @@ app.use('/timesheets', function(req, res) {
 			return chaseProxy.getTimesheets(data);
 		})
 			.fail(function (data) {
+				console.log("fail")
 				if (data.rejected === 302) {
 					var relogin = database.fetchAuth(data)
 						.then(function (data) {
@@ -497,10 +498,29 @@ app.use('/stoptiming', function(req, res) {
 	user.id = req.body.id;
 
 	user.jobID = req.body.jobID;
-	user.addedTime = req.body.addedTime;
+	user.addedTime = req.body.addedTime; //Work out the added time on the front end to avoid delays. Front end has the start and finish timestamp.
 
 	var promise = (function stopTiming () {
 			return database.stopTiming(user)
+		.then(function (data) {
+			clientResponser.success(data);
+		});
+	});
+
+	promise.call();
+});
+
+
+// Favourite / unfavourite - isFavourite: {{0 / 1}}
+app.use('/favourite', function(req, res) {
+	var user = {req: req, res: res};
+	user.id = req.body.id;
+
+	user.jobID = req.body.jobID;
+	user.isFavourite = parseInt(req.body.isFavourite);
+
+	var promise = (function favourite () {
+			return database.favourite(user)
 		.then(function (data) {
 			clientResponser.success(data);
 		});

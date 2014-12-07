@@ -7,7 +7,9 @@ define(["marionette", "controller"], function (Marionette, Controller){
 			"job/:id": 					"job",
 			"add-new": 					"addNew",
 			"save-all": 				"saveAll",
-			"unsaved": 					"unsaved"
+			"unsaved": 					"unsaved",
+			"purge-all": 				"purgeAll",
+			"logout": 					"logout"
 		},
 
 		controller: Controller

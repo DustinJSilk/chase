@@ -1,25 +1,32 @@
 <div class="list-block media-list">
 	<ul class="timesheets-list <%= data.unsaved %>">
 
-
+		<% var hasCompletedTitle = false; %>
 		<% for (var i = 0; i < data.sheets.length; i ++) { %>
-			<%
-				var isComplete = "";
-				var isTiming = "";
+			<%	
+				var masterClass = ""
 				var disabledSlider = "";
 
 				if ( data.sheets[i].get("isHidden") ) {
-					isComplete = "complete";
+					masterClass += "complete ";
 				}
 				if ( data.sheets[i].get("isTiming") ) { 
-					isTiming = "is-timing";
-				} 
-				if ( data.sheets[i].get("isTiming") ) { 
+					masterClass += "is-timing ";
 					disabledSlider = "disabled";
 				} 
+				if ( data.sheets[i].get("isFavourite") ) { 
+					masterClass += "favourite ";
+				}
 			%>
+			
+			<% 
+				if ( data.sheets[i].get("isHidden") && !hasCompletedTitle ) { 
+				hasCompletedTitle = true;
+			%>
+				<li class="item-divider complete-divider">Completed jobs<span class="close-completed"></span></li>
+			<% } %>
 
-			<li class="swipeout timesheet-item <%= data.sheets[i].get("colour") %> <%= isComplete %> <%= isTiming %>" id="<%= data.sheets[i].get("_id") %>">
+			<li class="swipeout timesheet-item <%= masterClass %>" id="<%= data.sheets[i].get("_id") %>">
 				<div class="swipeout-content">
 					<a id="#job/<%= data.sheets[i].get("_id") %>" class="item-link item-content">
 		                <div class="item-inner">
@@ -43,7 +50,7 @@
 							</div>  
 						</form>
 						<div class="mobile job-links">
-							<a class="colourize hide-for-unsaved">Favourite</a>
+							<a class="favourite hide-for-unsaved">Favourite</a>
 							<a class="hide-for-unsaved">Start Timing</a>
 							<a>Edit</a>
 						</div> 

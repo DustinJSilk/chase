@@ -26,13 +26,15 @@ require.config({
 
 require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
 
-    App.urlRoot = "http://10.0.0.7:7501";
-    App.os = "mobile";
+    //App.urlRoot = "http://silkysmooth.machineagency.co.za";
+    App.urlRoot = "http://127.0.0.1:7501";
+
+    App.os = "mac";
     // App.os = "windows";
     // App.os = "ios";
     // App.os = "android";
 
-    $('html').addClass(App.os)
+    //$('html').addClass(App.os)
 
     App.Framework7 = new Framework7({
         dynamicNavbar: true,
@@ -57,6 +59,31 @@ require([ "app", "router", "views/login"], function(App, AppRouter, LoginView) {
     });
 
     App.start();
+
+
+    var bindTypeEnd = (App.os === "mac" || App.os === "windows") ? "mouseup" : "touchend";
+    var bindTypeStart = (App.os === "mac" || App.os === "windows") ? "mousedown" : "touchstart";
+
+    // Show Complete
+    function toggleCompleted () {
+        $(".timesheet-item.complete").slideToggle();
+        $(".complete-divider").slideToggle();
+
+        if ( !$("#show-completed").hasClass("showing") ) {
+            $("#show-completed").html('<span class="icon">&#xe603;</span>Hide completed').addClass("showing");
+        } else {
+            $("#show-completed").html('<span class="icon">&#xe603;</span>Show completed').removeClass("showing");
+        }
+        App.Framework7.closePanel();
+        $(".close-completed").off(bindTypeEnd).on(bindTypeEnd, toggleCompleted);
+
+        // $(".page-content").animate({
+        //     scrollTop: $(".complete-divider").prev().offset().top + $(".complete-divider").prev().height() + "px"
+        // }, 600)
+        
+    }
+    $("#show-completed").on(bindTypeEnd, toggleCompleted);
+    
             
 });
 

@@ -100,6 +100,16 @@ define(["app"], function (App) {
             require([ "app", "views/index"], function (App, IndexView) {
                 App.unsaved.show(new IndexView({collection: App.Jobs, unsaved: true}));
             });
+        },
+
+        logout: function () {
+            require([ "app", "views/login" ], function (App, LoginView) {
+                App.Framework7.closePanel();
+                localStorage.clear();
+                App.login.show(new LoginView());
+                App.Framework7.loginScreen();
+            });
+            
         }
 
     }

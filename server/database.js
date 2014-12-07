@@ -492,6 +492,37 @@ var stopTiming = function (user) {
 }
 
 
+
+var favourite = function (user) {
+	var deferred = Q.defer();
+
+	var ObjectId = mongo.ObjectID;
+	var id = ObjectId.createFromHexString(user.id);
+
+	users.find({'_id': id}).toArray(function(err, data) {
+
+		for (var i = 0; i < data[0].timeSheets.length; i ++) {
+			if (data[0].timeSheets[i].id.valueOf() == user.jobID) {
+				data[0].timeSheets[i].isFavourite = !!(user.isFavourite);
+			}
+		}
+
+		users.update({ '_id': id }, {
+			$set: {
+				timeSheets: data[0].timeSheets
+			}
+
+		}, function (err, results) {
+			deferred.resolve(user);
+		}, 
+		{ upsert: true });
+
+	});
+
+	return deferred.promise;
+}
+
+
 module.exports = {
   createUser: 				createUser,
   updateUserCookies: 		updateUserCookies,
@@ -510,5 +541,6 @@ module.exports = {
   setJobType: 				setJobType,
   getJobType: 				getJobType,
   startTiming: 				startTiming,
-  stopTiming: 				stopTiming
+  stopTiming: 				stopTiming,
+  favourite: 				favourite
 }
